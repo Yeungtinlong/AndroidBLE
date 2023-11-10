@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -17,22 +18,25 @@ import java.util.List;
  */
 public class LVDevicesAdapter extends BaseAdapter {
 
+    private static final String DEVICE_NAME_HEAD = "JDY";
     private Context context;
     private List<BLEDevice> list;
+    private HashSet<String> listMACs;
 
     public LVDevicesAdapter(Context context) {
         this.context = context;
         list = new ArrayList<>();
+        listMACs = new HashSet<>();
     }
 
     @Override
     public int getCount() {
-        return list == null ?  0 : list.size();
+        return list == null ? 0 : list.size();
     }
 
     @Override
     public Object getItem(int i) {
-        if(list == null){
+        if (list == null) {
             return null;
         }
         return list.get(i);
@@ -47,20 +51,20 @@ public class LVDevicesAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         DeviceViewHolder viewHolder;
-        if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.layout_lv_devices_item,null);
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.layout_lv_devices_item, null);
             viewHolder = new DeviceViewHolder();
             viewHolder.tvDeviceName = view.findViewById(R.id.tv_device_name);
             viewHolder.tvDeviceAddress = view.findViewById(R.id.tv_device_address);
             viewHolder.tvDeviceRSSI = view.findViewById(R.id.tv_device_rssi);
             view.setTag(viewHolder);
-        }else{
+        } else {
             viewHolder = (DeviceViewHolder) view.getTag();
         }
 
-        if(list.get(i).getBluetoothDevice().getName() == null){
+        if (list.get(i).getBluetoothDevice().getName() == null) {
             viewHolder.tvDeviceName.setText("NULL");
-        }else{
+        } else {
             viewHolder.tvDeviceName.setText(list.get(i).getBluetoothDevice().getName());
         }
 
@@ -72,37 +76,49 @@ public class LVDevicesAdapter extends BaseAdapter {
 
     /**
      * 初始化所有设备列表
+     *
      * @param bluetoothDevices
      */
-    public void addAllDevice(List<BLEDevice> bluetoothDevices){
-        if(list != null){
+    public void addAllDevice(List<BLEDevice> bluetoothDevices) {
+        if (list != null) {
             list.clear();
             list.addAll(bluetoothDevices);
             notifyDataSetChanged();
         }
-
     }
 
     /**
      * 添加列表子项
+     *
      * @param bleDevice
      */
-    public void addDevice(BLEDevice bleDevice){
-        if(list == null){
+    public void addDevice(BLEDevice bleDevice) {
+        if (list == null) {
             return;
         }
-        if(!list.contains(bleDevice)){
+        if (!CheckDeviceNameValid(bleDevice.getBluetoothDevice().getName()))
+            return;
+
+        if (!list.contains(bleDevice) && !listMACs.contains(bleDevice.getBluetoothDevice().getAddress())) {
             list.add(bleDevice);
+            listMACs.add(bleDevice.getBluetoothDevice().getAddress());
         }
         notifyDataSetChanged();   //刷新
+    }
+
+    private boolean CheckDeviceNameValid(String deviceName) {
+        return deviceName != null && deviceName.startsWith(DEVICE_NAME_HEAD);
     }
 
     /**
      * 清空列表
      */
-    public void clear(){
-        if(list != null){
+    public void clear() {
+        if (list != null) {
             list.clear();
+        }
+        if (listMACs != null) {
+            listMACs.clear();
         }
         notifyDataSetChanged(); //刷新
     }
