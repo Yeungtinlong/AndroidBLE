@@ -1,212 +1,343 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:padding="10dp"
-    android:focusableInTouchMode="true">
+    android:background="@drawable/main_backgrouad_icon"
+    android:focusableInTouchMode="true"
+    tools:context=".MainActivity">
 
-    <!--扫描设备-->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/ll_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
 
-            <Button
-                android:id="@+id/bt_search"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:text="搜索"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:background="@drawable/bt_bg"/>
-
-            <TextView
-                android:id="@+id/tv_cur_con_state"
-                android:layout_marginTop="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/colorPrimary"/>
-
+            <!--  顶部Icon  -->
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="top"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:src="@drawable/logo_bottom_icon" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_toRightOf="@+id/ll_search"
-            android:layout_marginLeft="10dp"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_weight="6"
+            android:backgroundTint="@color/clear"
+            app:cardElevation="0dp">
 
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:hint="设备名"
-                android:textColor="@color/colorPrimary"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:paddingLeft="10dp"
-                android:background="@drawable/tv_bg"/>
-
-            <TextView
-                android:id="@+id/tv_address"
-                android:layout_marginTop="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:hint="设备地址"
-                android:textColor="@color/colorPrimary"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:paddingLeft="10dp"
-                android:background="@drawable/tv_bg"/>
-
+            <!--        Spacer-->
             <LinearLayout
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/bt_connect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:text="连接"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:background="@drawable/bt_bg"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingVertical="10dp">
 
-                <Button
-                    android:id="@+id/bt_disconnect"
-                    android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:text="断开"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:background="@drawable/bt_bg"/>
+                    <!--                <ImageView-->
+                    <!--                    android:layout_width="30dp"-->
+                    <!--                    android:layout_height="30dp"-->
+                    <!--                    android:src="@drawable/ic_bluetooth_black" />-->
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingHorizontal="20dp"
+                        android:text="Device List"
+                        android:textAlignment="textStart"
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="normal" />
+
+                </LinearLayout>
+
+                <!--搜索到的设备列表-->
+                <LinearLayout
+                    android:id="@+id/ll_device_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/lv_devices"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:listitem="@layout/layout_lv_devices_item">
+
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+
+                </LinearLayout>
+
 
             </LinearLayout>
 
+
+            <!--        <Button-->
+            <!--            android:id="@+id/jumpActivityBtn"-->
+            <!--            android:layout_width="wrap_content"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:layout_centerHorizontal="true"-->
+            <!--            android:text="Jump Activity" />-->
+
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- 交互按钮栏 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- 搜索按钮 -->
+            <Button
+                android:id="@+id/bt_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bt_bg"
+                android:text="Search"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <!--    底部Icon    -->
+            <ImageView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+
+                android:src="@drawable/logo_icon" />
+
+
         </LinearLayout>
 
-    </RelativeLayout>
 
-    <!--搜索设备列表-->
-    <LinearLayout
-        android:id="@+id/ll_device_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="5dp"
-        android:visibility="gone">
+        <!--    &lt;!&ndash;扫描设备&ndash;&gt;-->
+        <!--    <RelativeLayout-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="wrap_content">-->
 
-        <ListView
-            android:id="@+id/lv_devices"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/ll_search"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="vertical">-->
 
-        </ListView>
+        <!--            <Button-->
+        <!--                android:id="@+id/bt_search"-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="30dp"-->
+        <!--                android:background="@drawable/bt_bg"-->
+        <!--                android:text="搜索"-->
+        <!--                android:textColor="#FFFFFF"-->
+        <!--                android:textSize="14sp" />-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/tv_cur_con_state"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginTop="10dp"-->
+        <!--                android:textColor="@color/colorPrimary"-->
+        <!--                android:textSize="14sp" />-->
+
+
+        <!--        </LinearLayout>-->
+
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginLeft="10dp"-->
+        <!--            android:layout_toRightOf="@+id/ll_search"-->
+        <!--            android:orientation="vertical">-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/tv_name"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:background="@drawable/tv_bg"-->
+        <!--                android:hint="设备名"-->
+        <!--                android:paddingLeft="10dp"-->
+        <!--                android:paddingTop="5dp"-->
+        <!--                android:paddingBottom="5dp"-->
+        <!--                android:textColor="@color/colorPrimary"-->
+        <!--                android:textSize="14sp" />-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/tv_address"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginTop="10dp"-->
+        <!--                android:background="@drawable/tv_bg"-->
+        <!--                android:hint="设备地址"-->
+        <!--                android:paddingLeft="10dp"-->
+        <!--                android:paddingTop="5dp"-->
+        <!--                android:paddingBottom="5dp"-->
+        <!--                android:textColor="@color/colorPrimary"-->
+        <!--                android:textSize="14sp" />-->
+
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginTop="10dp"-->
+        <!--                android:orientation="horizontal">-->
+
+        <!--                <Button-->
+        <!--                    android:id="@+id/bt_connect"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="30dp"-->
+        <!--                    android:background="@drawable/bt_bg"-->
+        <!--                    android:text="连接"-->
+        <!--                    android:textColor="#FFFFFF"-->
+        <!--                    android:textSize="14sp" />-->
+
+        <!--                <Button-->
+        <!--                    android:id="@+id/bt_disconnect"-->
+        <!--                    android:layout_width="wrap_content"-->
+        <!--                    android:layout_height="30dp"-->
+        <!--                    android:layout_marginLeft="10dp"-->
+        <!--                    android:background="@drawable/bt_bg"-->
+        <!--                    android:text="断开"-->
+        <!--                    android:textColor="#FFFFFF"-->
+        <!--                    android:textSize="14sp" />-->
+
+        <!--            </LinearLayout>-->
+
+        <!--        </LinearLayout>-->
+
+        <!--    </RelativeLayout>-->
+
+        <!--    &lt;!&ndash;搜索设备列表&ndash;&gt;-->
+        <!--    <LinearLayout-->
+        <!--        android:id="@+id/ll_device_list"-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="match_parent"-->
+        <!--        android:padding="5dp"-->
+        <!--        android:visibility="gone">-->
+
+        <!--        <ListView-->
+        <!--            android:id="@+id/lv_devices"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent">-->
+
+        <!--        </ListView>-->
+
+        <!--    </LinearLayout>-->
+
+        <!--    &lt;!&ndash;数据收发&ndash;&gt;-->
+        <!--    <LinearLayout-->
+        <!--        android:id="@+id/ll_data_send_receive"-->
+        <!--        android:layout_width="match_parent"-->
+        <!--        android:layout_height="match_parent"-->
+        <!--        android:orientation="vertical"-->
+        <!--        android:visibility="visible">-->
+
+        <!--        <TextView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:text="设置要发送的数据(十六进制字符串形式)"-->
+        <!--            android:textColor="@color/colorPrimary"-->
+        <!--            android:textSize="14sp" />-->
+
+        <!--        <EditText-->
+        <!--            android:id="@+id/et_send_msg"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:background="@drawable/tv_bg"-->
+        <!--            android:hint="在此输入要发送的数据"-->
+        <!--            android:padding="10dp"-->
+        <!--            android:textColor="#333333"-->
+        <!--            android:textSize="14sp" />-->
+
+        <!--        <Button-->
+        <!--            android:id="@+id/bt_to_send"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="30dp"-->
+        <!--            android:layout_marginLeft="10dp"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:background="@drawable/bt_bg"-->
+        <!--            android:text="发送"-->
+        <!--            android:textColor="#FFFFFF"-->
+        <!--            android:textSize="14sp" />-->
+
+        <!--        <TextView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:text="显示接收的数据操作结果(发送成功/发送失败)"-->
+        <!--            android:textColor="@color/colorPrimary"-->
+        <!--            android:textSize="14sp" />-->
+
+        <!--        <ScrollView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="100dp"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:background="@drawable/tv_bg">-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/tv_send_result"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                android:hint="此处显示发送数据操作结果"-->
+        <!--                android:padding="10dp"-->
+        <!--                android:textColor="@color/colorPrimary"-->
+        <!--                android:textSize="14sp" />-->
+        <!--        </ScrollView>-->
+
+        <!--        <TextView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:text="显示接收的数据(以十六进制字符串显示)"-->
+        <!--            android:textColor="@color/colorPrimary"-->
+        <!--            android:textSize="14sp" />-->
+
+        <!--        <ScrollView-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="100dp"-->
+        <!--            android:layout_marginTop="10dp"-->
+        <!--            android:background="@drawable/tv_bg">-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/tv_receive_result"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                android:hint="此处显示发送数据操作结果"-->
+        <!--                android:padding="10dp"-->
+        <!--                android:textColor="@color/colorPrimary"-->
+        <!--                android:textSize="14sp" />-->
+        <!--        </ScrollView>-->
+
+        <!--    </LinearLayout>-->
+
 
     </LinearLayout>
 
-    <!--数据收发-->
-    <LinearLayout
-        android:id="@+id/ll_data_send_receive"
-        android:visibility="visible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+    <include
+        android:id="@+id/mainBlocker"
+        layout="@layout/loading_blocker"
+        android:visibility="gone" />
 
-        <TextView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="设置要发送的数据(十六进制字符串形式)"
-            android:textColor="@color/colorPrimary"/>
-
-        <EditText
-            android:id="@+id/et_send_msg"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#333333"
-            android:padding="10dp"
-            android:hint="在此输入要发送的数据"
-            android:background="@drawable/tv_bg"/>
-
-        <Button
-            android:id="@+id/bt_to_send"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:text="发送"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:background="@drawable/bt_bg"/>
-
-        <TextView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="显示接收的数据操作结果(发送成功/发送失败)"
-            android:textColor="@color/colorPrimary"/>
-
-        <ScrollView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="@drawable/tv_bg">
-
-            <TextView
-                android:id="@+id/tv_send_result"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:hint="此处显示发送数据操作结果"
-                android:textColor="@color/colorPrimary"/>
-        </ScrollView>
-
-        <TextView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:text="显示接收的数据(以十六进制字符串显示)"
-            android:textColor="@color/colorPrimary"/>
-
-        <ScrollView
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="@drawable/tv_bg">
-
-            <TextView
-                android:id="@+id/tv_receive_result"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:textSize="14sp"
-                android:hint="此处显示发送数据操作结果"
-                android:textColor="@color/colorPrimary"/>
-        </ScrollView>
-
-    </LinearLayout>
-
-
-</LinearLayout>
+</RelativeLayout>

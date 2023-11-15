@@ -1,43 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:backgroundTint="@color/clear"
+    app:cardElevation="0dp">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_device_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textColor="@color/colorPrimary"
-            android:textSize="16sp" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_height="1dp"
+            android:background="@color/whiteAlpha20" />
 
-        <TextView
-            android:id="@+id/tv_device_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textColor="@color/colorPrimary"
-            android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:id="@+id/tv_device_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:text="JDY_Device_Name"
+                android:textColor="@color/white"
+                android:textSize="12dp" />
+
+            <Button
+                android:id="@+id/connectButton"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_weight="3"
+                android:background="@drawable/btn"
+                android:text="Connect"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textSize="14dp" />
+
+        </LinearLayout>
+
+
+
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/tv_device_address"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:padding="5dp"-->
+        <!--            android:textColor="@color/colorPrimary"-->
+        <!--            android:textSize="16sp" />-->
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_device_rssi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:textColor="@color/colorPrimary"
-        android:textSize="16sp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="10dp" />
+</androidx.cardview.widget.CardView>
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/tv_device_rssi"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="center_vertical"-->
+    <!--        android:layout_marginEnd="10dp"-->
+    <!--        android:padding="5dp"-->
+    <!--        android:textColor="@color/colorPrimary"-->
+    <!--        android:textSize="16sp" />-->
 
 
-</LinearLayout>

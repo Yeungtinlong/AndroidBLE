@@ -1,13 +1,16 @@
 package yc.bluetooth.androidble;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,30 +19,58 @@ import java.util.List;
 /**
  * 搜索到的设备列表适配器
  */
-public class LVDevicesAdapter extends BaseAdapter {
+public class LVDevicesAdapter extends RecyclerView.Adapter<LVDevicesAdapter.DeviceViewHolder> {
 
-    private static final String DEVICE_NAME_HEAD = "JDY";
+    public class DeviceViewHolder extends RecyclerView.ViewHolder {
+
+        TextView tvDeviceName;
+        Button connectButton;
+
+        public DeviceViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvDeviceName = itemView.findViewById(R.id.tv_device_name);
+            connectButton = itemView.findViewById(R.id.connectButton);
+        }
+    }
+
+    public interface OnDeviceConnectClickListener {
+        void onClicked(int position);
+    }
+
     private Context context;
-    private List<BLEDevice> list;
-    private HashSet<String> listMACs;
+    private List<BLEDevice> bleDevices;
+
+    private OnDeviceConnectClickListener onDeviceConnectClickListener;
 
     public LVDevicesAdapter(Context context) {
         this.context = context;
-        list = new ArrayList<>();
-        listMACs = new HashSet<>();
+        bleDevices = new ArrayList<>();
+    }
+
+    public void setOnDeviceConnectClickListener(OnDeviceConnectClickListener onDeviceConnectClickListener) {
+        this.onDeviceConnectClickListener = onDeviceConnectClickListener;
+    }
+
+    @NonNull
+    @Override
+    public DeviceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_lv_devices_item, parent, false);
+        return new DeviceViewHolder(itemView);
     }
 
     @Override
-    public int getCount() {
-        return list == null ? 0 : list.size();
-    }
+    public void onBindViewHolder(@NonNull DeviceViewHolder holder, int position) {
 
-    @Override
-    public Object getItem(int i) {
-        if (list == null) {
-            return null;
+        if (bleDevices.get(position).getBluetoothDevice().getName() == null) {
+            holder.tvDeviceName.setText("NULL");
+        } else {
+            holder.tvDeviceName.setText(bleDevices.get(position).getBluetoothDevice().getName());
         }
-        return list.get(i);
+
+        holder.connectButton.setOnClickListener(view -> {
+            onDeviceConnectClickListener.onClicked(position);
+        });
     }
 
     @Override
@@ -47,31 +78,13 @@ public class LVDevicesAdapter extends BaseAdapter {
         return i;
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        DeviceViewHolder viewHolder;
-        if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.layout_lv_devices_item, null);
-            viewHolder = new DeviceViewHolder();
-            viewHolder.tvDeviceName = view.findViewById(R.id.tv_device_name);
-            viewHolder.tvDeviceAddress = view.findViewById(R.id.tv_device_address);
-            viewHolder.tvDeviceRSSI = view.findViewById(R.id.tv_device_rssi);
-            view.setTag(viewHolder);
-        } else {
-            viewHolder = (DeviceViewHolder) view.getTag();
-        }
+    public int getItemCount() {
+        return bleDevices.size();
+    }
 
-        if (list.get(i).getBluetoothDevice().getName() == null) {
-            viewHolder.tvDeviceName.setText("NULL");
-        } else {
-            viewHolder.tvDeviceName.setText(list.get(i).getBluetoothDevice().getName());
-        }
-
-        viewHolder.tvDeviceAddress.setText(list.get(i).getBluetoothDevice().getAddress());
-        viewHolder.tvDeviceRSSI.setText("RSSI：" + list.get(i).getRSSI());
-
-        return view;
+    public BLEDevice getDevice(int position) {
+        return bleDevices.get(position);
     }
 
     /**
@@ -80,9 +93,9 @@ public class LVDevicesAdapter extends BaseAdapter {
      * @param bluetoothDevices
      */
     public void addAllDevice(List<BLEDevice> bluetoothDevices) {
-        if (list != null) {
-            list.clear();
-            list.addAll(bluetoothDevices);
+        if (bleDevices != null) {
+            bleDevices.clear();
+            bleDevices.addAll(bluetoothDevices);
             notifyDataSetChanged();
         }
     }
@@ -93,41 +106,24 @@ public class LVDevicesAdapter extends BaseAdapter {
      * @param bleDevice
      */
     public void addDevice(BLEDevice bleDevice) {
-        if (list == null) {
+        if (bleDevices == null) {
             return;
         }
-        if (!CheckDeviceNameValid(bleDevice.getBluetoothDevice().getName()))
-            return;
 
-        if (!list.contains(bleDevice) && !listMACs.contains(bleDevice.getBluetoothDevice().getAddress())) {
-            list.add(bleDevice);
-            listMACs.add(bleDevice.getBluetoothDevice().getAddress());
+        if (!bleDevices.contains(bleDevice)) {
+            bleDevices.add(bleDevice);
         }
+
         notifyDataSetChanged();   //刷新
-    }
-
-    private boolean CheckDeviceNameValid(String deviceName) {
-        return deviceName != null && deviceName.startsWith(DEVICE_NAME_HEAD);
     }
 
     /**
      * 清空列表
      */
     public void clear() {
-        if (list != null) {
-            list.clear();
-        }
-        if (listMACs != null) {
-            listMACs.clear();
+        if (bleDevices != null) {
+            bleDevices.clear();
         }
         notifyDataSetChanged(); //刷新
     }
-
-    class DeviceViewHolder {
-
-        TextView tvDeviceName;
-        TextView tvDeviceAddress;
-        TextView tvDeviceRSSI;
-    }
-
 }
