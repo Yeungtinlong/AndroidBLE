@@ -2,6 +2,7 @@ package yc.bluetooth.androidble;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,6 +114,8 @@ public class LVDevicesAdapter extends RecyclerView.Adapter<LVDevicesAdapter.Devi
         if (!bleDevices.contains(bleDevice)) {
             bleDevices.add(bleDevice);
         }
+
+        Log.d(LVDevicesAdapter.class.getName(), "Thread Id: " + Thread.currentThread().getId() + ", Add to UI: " + bleDevice.getBluetoothDevice().getName());
 
         notifyDataSetChanged();   //刷新
     }

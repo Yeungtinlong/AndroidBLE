@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case DISCOVERY_DEVICE:  //扫描到设备
                     BLEDevice bleDevice = (BLEDevice) msg.obj;
                     lvDevicesAdapter.addDevice(bleDevice);
-
+                    Log.d(MainActivity.class.getName(), "Thread: " + Thread.currentThread().getId() + ", Found Device: " + bleDevice.getBluetoothDevice().getName());
                     break;
 
 //                case SELECT_DEVICE:
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    break;
 
                 case CONNECT_FAILURE: //连接失败
-                    onConnectFail();
+                    onConnectFail((String) msg.obj);
 //                    Log.d(TAG, "连接失败");
 //                    tvCurConState.setText("连接失败");
 //                    curConnState = false;
@@ -181,10 +181,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
-    private void onConnectFail() {
+    private void onConnectFail(String errorMessage) {
         Log.d(TAG, "连接失败");
 //        curConnState = false;
-        Toast.makeText(mContext, "Connect Fail", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Connect Fail >>> " + errorMessage, Toast.LENGTH_SHORT).show();
         loadingBlocker.setVisibility(View.GONE);
     }
 
@@ -332,25 +332,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 searchBtDevice();
                 break;
 
-            case R.id.bt_connect: //连接蓝牙
-                if (!curConnState) {
-                    if (bleManager != null) {
-                        bleManager.connectBleDevice(mContext, curBluetoothDevice, 15000, SERVICE_UUID, READ_UUID, WRITE_UUID, onBleConnectListener);
-                    }
-                } else {
-                    Toast.makeText(this, "当前设备已连接", Toast.LENGTH_SHORT).show();
-                }
-                break;
+//            case R.id.bt_connect: //连接蓝牙
+//                if (!curConnState) {
+//                    if (bleManager != null) {
+//                        bleManager.connectBleDevice(mContext, curBluetoothDevice, 15000, SERVICE_UUID, READ_UUID, WRITE_UUID, onBleConnectListener);
+//                    }
+//                } else {
+//                    Toast.makeText(this, "当前设备已连接", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
 
-            case R.id.bt_disconnect: //断开连接
-                if (curConnState) {
-                    if (bleManager != null) {
-                        bleManager.disConnectDevice();
-                    }
-                } else {
-                    Toast.makeText(this, "当前设备未连接", Toast.LENGTH_SHORT).show();
-                }
-                break;
+//            case R.id.bt_disconnect: //断开连接
+//                if (curConnState) {
+//                    if (bleManager != null) {
+//                        bleManager.disConnectDevice();
+//                    }
+//                } else {
+//                    Toast.makeText(this, "当前设备未连接", Toast.LENGTH_SHORT).show();
+//                }
+//                break;
 
 //            case R.id.bt_to_send: //发送数据
 //                if (curConnState) {
@@ -424,6 +424,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onConnectFailure(BluetoothGatt bluetoothGatt, BluetoothDevice bluetoothDevice, String exception, int status) {
             Message message = new Message();
             message.what = CONNECT_FAILURE;
+            message.obj = exception;
             mHandler.sendMessage(message);
         }
 

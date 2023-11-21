@@ -28,7 +28,7 @@ public class CountDownActivity extends AppCompatActivity {
 
 
     private void initViews() {
-        backBtn = findViewById(R.id.backBtn);
+        backBtn = findViewById(R.id.btn_backToMain);
     }
 
     private void registerViews() {

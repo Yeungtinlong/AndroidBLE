@@ -95,7 +95,7 @@ public class BLEManager {
                 return;
 
 //                Log.d(TAG, "null" + "-->" + bluetoothDevice.getAddress());
-            Log.d(TAG, bluetoothDevice.getName() + "-->" + bluetoothDevice.getAddress());
+            Log.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + "-->" + bluetoothDevice.getAddress());
             scannedDevices.add(bluetoothDevice.getAddress());
 
             BLEDevice bleDevice = new BLEDevice(bluetoothDevice, rssi);
