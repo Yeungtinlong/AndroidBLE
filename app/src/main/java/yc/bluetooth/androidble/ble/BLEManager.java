@@ -9,19 +9,21 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import yc.bluetooth.androidble.BLEDevice;
 import yc.bluetooth.androidble.util.ClsUtils;
@@ -46,9 +48,21 @@ public class BLEManager {
     private static final long MAX_CONNECT_TIME = 10000;  //连接超时时间10s
     private static final String DEVICE_NAME_PREFIX = "JDY";
 
+    private static BLEManager instance;
+
+    public static final BLEManager getInstance() {
+        if (instance == null) {
+            instance = new BLEManager();
+        }
+
+        return instance;
+    }
+
+
     private Context mContext;
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetooth4Adapter;
+
     private BluetoothGatt mBluetoothGatt;  //当前连接的gatt
     private String serviceUUID, readUUID, writeUUID;
     private BluetoothGattService bluetoothGattService;   //服务
@@ -59,11 +73,18 @@ public class BLEManager {
     private BluetoothDevice curConnDevice;  //当前连接的设备
     private boolean isConnectIng = false;  //是否正在连接中
 
+    private BLEMessageSender bleMessageSender;
+    private BLEMessageReceiver bleMessageReceiver;
+
     private Handler mHandler = new Handler();
 
     HashSet<String> scannedDevices = new HashSet<>();
 
+    private BLEIdentifier bleIdentifier;
+
     public BLEManager() {
+        this.bleMessageSender = new BLEMessageSender(this, mHandler);
+        this.bleMessageReceiver = new BLEMessageReceiver();
     }
 
     /**
@@ -91,11 +112,11 @@ public class BLEManager {
             if (bluetoothDevice == null)
                 return;
 
-            if (!CheckDeviceNameValid(bluetoothDevice.getName()) || scannedDevices.contains(bluetoothDevice.getAddress()))
+            if (!checkDeviceNameValid(bluetoothDevice.getName()) || scannedDevices.contains(bluetoothDevice.getAddress()))
                 return;
 
 //                Log.d(TAG, "null" + "-->" + bluetoothDevice.getAddress());
-            Log.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + "-->" + bluetoothDevice.getAddress());
+            Log.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + " --> " + bluetoothDevice.getAddress());
             scannedDevices.add(bluetoothDevice.getAddress());
 
             BLEDevice bleDevice = new BLEDevice(bluetoothDevice, rssi);
@@ -367,6 +388,12 @@ public class BLEManager {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
+            switch (status) {
+                case BluetoothGatt.GATT_SUCCESS:
+                    Log.w(TAG, "开启监听成功");
+                    checkIdentification(gatt);
+                    break;
+            }
         }
 
         @Override
@@ -519,8 +546,10 @@ public class BLEManager {
             return false;
         }
 
+        Log.d(TAG, "services count = " + bluetoothGatt.getServices().size());
+
         for (BluetoothGattService service : bluetoothGatt.getServices()) {
-//            Log.d(TAG, "service = " + service.getUuid().toString());
+            Log.d(TAG, "service = " + service.getUuid().toString());
             if (service.getUuid().toString().equals(serviceUUID)) {
                 bluetoothGattService = service;
             }
@@ -540,6 +569,8 @@ public class BLEManager {
         }
 
         for (BluetoothGattCharacteristic characteristic : bluetoothGattService.getCharacteristics()) {
+            Log.d(TAG, "get characteristic = " + characteristic.getUuid().toString());
+
             if (characteristic.getUuid().toString().equals(readUUID)) {  //读特征
                 readCharacteristic = characteristic;
             } else if (characteristic.getUuid().toString().equals(writeUUID)) {  //写特征
@@ -623,6 +654,7 @@ public class BLEManager {
         }
 
         boolean b = writeCharacteristic.setValue(TypeConversion.hexString2Bytes(msg));
+//        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         Log.d(TAG, "写特征设置值结果：" + b);
         return mBluetoothGatt.writeCharacteristic(writeCharacteristic);
     }
@@ -728,8 +760,55 @@ public class BLEManager {
         return bluetooth4Adapter.isDiscovering();
     }
 
-    private boolean CheckDeviceNameValid(String deviceName) {
+    private boolean checkDeviceNameValid(String deviceName) {
         return deviceName != null;
 //        return deviceName != null && deviceName.startsWith(DEVICE_NAME_HEAD);
+    }
+
+    private void checkIdentification(BluetoothGatt gatt) {
+
+        bleIdentifier = new BLEIdentifier(bleMessageSender);
+        bleIdentifier.startIdentify(new BLEIdentifier.OnIdentifyResultListener() {
+            @Override
+            public void onIdentifySuccess() {
+                if (onBleConnectListener != null)
+                    onBleConnectListener.onIdentifySuccess();
+            }
+
+            @Override
+            public void onIdentifyFail() {
+                if (onBleConnectListener != null)
+                    onBleConnectListener.onIdentifyFail();
+            }
+        });
+    }
+
+    public BluetoothGatt getBluetoothGatt() {
+        return mBluetoothGatt;
+    }
+
+    public void setBluetoothGatt(BluetoothGatt mBluetoothGatt) {
+        this.mBluetoothGatt = mBluetoothGatt;
+
+    }
+
+    public BluetoothGattCharacteristic getReadCharacteristic() {
+        return readCharacteristic;
+    }
+
+    public void setReadCharacteristic(BluetoothGattCharacteristic readCharacteristic) {
+        this.readCharacteristic = readCharacteristic;
+    }
+
+    public BluetoothGattCharacteristic getWriteCharacteristic() {
+        return writeCharacteristic;
+    }
+
+    public void setWriteCharacteristic(BluetoothGattCharacteristic writeCharacteristic) {
+        this.writeCharacteristic = writeCharacteristic;
+    }
+
+    public void sendMessageHandler(byte[] data) {
+        this.bleMessageReceiver.receiveMessage(data);
     }
 }

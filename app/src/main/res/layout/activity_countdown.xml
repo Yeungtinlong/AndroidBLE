@@ -97,6 +97,7 @@
             </LinearLayout>
 
             <include
+                android:id="@+id/timer"
                 layout="@layout/layout_timer"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

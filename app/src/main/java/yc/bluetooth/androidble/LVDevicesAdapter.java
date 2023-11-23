@@ -115,8 +115,6 @@ public class LVDevicesAdapter extends RecyclerView.Adapter<LVDevicesAdapter.Devi
             bleDevices.add(bleDevice);
         }
 
-        Log.d(LVDevicesAdapter.class.getName(), "Thread Id: " + Thread.currentThread().getId() + ", Add to UI: " + bleDevice.getBluetoothDevice().getName());
-
         notifyDataSetChanged();   //刷新
     }
 

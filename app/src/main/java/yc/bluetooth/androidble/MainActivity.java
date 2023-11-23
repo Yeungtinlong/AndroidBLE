@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -30,10 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import yc.bluetooth.androidble.ble.BLEManager;
+import yc.bluetooth.androidble.ble.BLEMessageReceiver;
+import yc.bluetooth.androidble.ble.BLEMessageSender;
 import yc.bluetooth.androidble.ble.OnBleConnectListener;
 import yc.bluetooth.androidble.ble.OnDeviceSearchListener;
 import yc.bluetooth.androidble.permission.PermissionListener;
 import yc.bluetooth.androidble.permission.PermissionRequest;
+import yc.bluetooth.androidble.util.TypeConversion;
 
 /**
  * BLE开发
@@ -43,9 +47,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "BLEMain";
 
     //bt_patch(mtu).bin
-    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //读特征
-    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
+
+    // Osteo Strong
+    public static final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+    public static final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
+    public static final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
+
+    // JDY
+//    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+//    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
+//    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     //动态申请权限
     private String[] requestPermissionArray = new String[]{
@@ -69,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int SELECT_DEVICE = 0x0C;
     private static final int BT_OPENED = 0x0D;
     private static final int BT_CLOSED = 0x0E;
+    private static final int IDENTIFY_SUCCESS = 0x0F;
+    private static final int IDENTIFY_FAIL = 0x10;
 
     private Button btSearch;
     private LinearLayout llDeviceList;
@@ -79,11 +92,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BLEManager bleManager;
     private BLEBroadcastReceiver bleBroadcastReceiver;
     private BluetoothDevice curBluetoothDevice;  //当前连接的设备
+
+    private BLEMessageSender bleMessageSender;
+
     //当前设备连接状态
     private boolean curConnState = false;
 
 
     private View loadingBlocker;
+
+    private Button btnTestSend;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -104,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case DISCOVERY_DEVICE:  //扫描到设备
                     BLEDevice bleDevice = (BLEDevice) msg.obj;
                     lvDevicesAdapter.addDevice(bleDevice);
-                    Log.d(MainActivity.class.getName(), "Thread: " + Thread.currentThread().getId() + ", Found Device: " + bleDevice.getBluetoothDevice().getName());
                     break;
 
 //                case SELECT_DEVICE:
@@ -118,47 +135,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     onConnectFail((String) msg.obj);
 //                    Log.d(TAG, "连接失败");
 //                    tvCurConState.setText("连接失败");
-//                    curConnState = false;
+                    curConnState = false;
                     break;
 
                 case CONNECT_SUCCESS:  //连接成功
                     onConnectSuccess();
 
 //                    tvCurConState.setText("连接成功");
-//                    curConnState = true;
+                    curConnState = true;
 //                    llDataSendReceive.setVisibility(View.VISIBLE);
 //                    llDeviceList.setVisibility(View.GONE);
                     break;
 
-//                case DISCONNECT_SUCCESS:
+                case DISCONNECT_SUCCESS:
 //                    Log.d(TAG, "断开成功");
 //                    tvCurConState.setText("断开成功");
-//                    curConnState = false;
+                    curConnState = false;
 //
-//                    break;
+                    break;
 
-//                case SEND_FAILURE: //发送失败
-//                    byte[] sendBufFail = (byte[]) msg.obj;
-//                    String sendFail = TypeConversion.bytes2HexString(sendBufFail, sendBufFail.length);
-//                    tvSendResult.setText("发送数据失败，长度" + sendBufFail.length + "--> " + sendFail);
-//                    break;
+                case SEND_FAILURE: //发送失败
+                    byte[] sendBufFail = (byte[]) msg.obj;
+                    String sendFail = TypeConversion.bytes2HexString(sendBufFail, sendBufFail.length);
+                    Log.e(TAG, "发送数据失败，长度" + sendBufFail.length + "--> " + sendFail);
+                    break;
 
-//                case SEND_SUCCESS:  //发送成功
-//                    byte[] sendBufSuc = (byte[]) msg.obj;
-//                    String sendResult = TypeConversion.bytes2HexString(sendBufSuc, sendBufSuc.length);
-//                    tvSendResult.setText("发送数据成功，长度" + sendBufSuc.length + "--> " + sendResult);
-//                    break;
+                case SEND_SUCCESS:  //发送成功
+                    byte[] sendBufSuc = (byte[]) msg.obj;
+                    String sendResult = TypeConversion.bytes2HexString(sendBufSuc, sendBufSuc.length);
+                    Log.i(TAG, "发送数据成功，长度" + sendBufSuc.length + "--> " + sendResult);
+                    break;
 
-//                case RECEIVE_FAILURE: //接收失败
-//                    String receiveError = (String) msg.obj;
-//                    tvReceive.setText(receiveError);
-//                    break;
+                case RECEIVE_FAILURE: //接收失败
+                    String receiveError = (String) msg.obj;
+                    Log.e(TAG, receiveError);
+                    break;
 
-//                case RECEIVE_SUCCESS:  //接收成功
-//                    byte[] recBufSuc = (byte[]) msg.obj;
-//                    String receiveResult = TypeConversion.bytes2HexString(recBufSuc, recBufSuc.length);
-//                    tvReceive.setText("接收数据成功，长度" + recBufSuc.length + "--> " + receiveResult);
-//                    break;
+                case RECEIVE_SUCCESS:  //接收成功
+                    byte[] recBufSuc = (byte[]) msg.obj;
+                    String receiveResult = TypeConversion.bytes2HexString(recBufSuc, recBufSuc.length);
+                    Log.i(TAG, "接收数据成功，长度" + recBufSuc.length + "--> " + receiveResult);
+
+                    // 在主线程中处理接收到的信息
+                    bleManager.sendMessageHandler(recBufSuc);
+
+                    break;
+
+                case IDENTIFY_SUCCESS:
+                    Log.i(TAG, "验证身份成功");
+                    loadingBlocker.setVisibility(View.GONE);
+                    gotoSecondaryActivity();
+
+
+                    break;
+
+                case IDENTIFY_FAIL:
+                    Log.i(TAG, "验证身份失败");
+                    break;
 
                 case BT_CLOSED:
                     Log.d(TAG, "系统蓝牙已关闭");
@@ -175,15 +208,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onConnectSuccess() {
         Log.d(TAG, "连接成功");
         Toast.makeText(mContext, "Connect Success", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(mContext, CountDownActivity.class);
-        startActivity(intent);
-        loadingBlocker.setVisibility(View.GONE);
-        finish();
     }
 
     private void onConnectFail(String errorMessage) {
         Log.d(TAG, "连接失败");
-//        curConnState = false;
+        curConnState = false;
         Toast.makeText(mContext, "Connect Fail >>> " + errorMessage, Toast.LENGTH_SHORT).show();
         loadingBlocker.setVisibility(View.GONE);
     }
@@ -220,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         llDeviceList = findViewById(R.id.ll_device_list);
         lvDevices = findViewById(R.id.lv_devices);
         loadingBlocker = findViewById(R.id.mainBlocker);
+        btnTestSend = findViewById(R.id.btn_test_send);
     }
 
 
@@ -227,7 +257,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化监听
      */
     private void iniListener() {
+
         btSearch.setOnClickListener(this);
+        btnTestSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bleManager.sendMessage("FB510051BF");
+            }
+        });
     }
 
     /**
@@ -254,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (!curConnState) {
                     if (bleManager != null) {
                         bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, SERVICE_UUID, READ_UUID, WRITE_UUID, onBleConnectListener);
-                        loadingBlocker.setVisibility(View.VISIBLE);
+//                        loadingBlocker.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Toast.makeText(mContext, "当前设备已连接", Toast.LENGTH_SHORT).show();
@@ -266,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lvDevices.setLayoutManager(new LinearLayoutManager(this));
 
         //初始化ble管理器
-        bleManager = new BLEManager();
+        bleManager = BLEManager.getInstance();
         if (!bleManager.initBle(mContext)) {
             Log.d(TAG, "该设备不支持低功耗蓝牙");
             Toast.makeText(mContext, "该设备不支持低功耗蓝牙", Toast.LENGTH_SHORT).show();
@@ -442,6 +479,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
+        public void onIdentifySuccess() {
+            Message message = new Message();
+            message.what = IDENTIFY_SUCCESS;
+            message.obj = null;
+            mHandler.sendMessage(message);
+        }
+
+        @Override
+        public void onIdentifyFail() {
+            Message message = new Message();
+            message.what = IDENTIFY_FAIL;
+            message.obj = null;
+            mHandler.sendMessage(message);
+        }
+
+        @Override
         public void onServiceDiscoverySucceed(BluetoothGatt bluetoothGatt, BluetoothDevice bluetoothDevice, int status) {
             //因为服务发现成功之后，才能通讯，所以在成功发现服务的地方表示连接成功
             Message message = new Message();
@@ -538,5 +591,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+    }
+
+    private void gotoSecondaryActivity() {
+        Intent intent = new Intent(mContext, CountDownActivity.class);
+        startActivity(intent);
+        loadingBlocker.setVisibility(View.GONE);
     }
 }
