@@ -109,11 +109,13 @@
                 android:layout_weight="2.5"
                 android:gravity="center">
 
-                <Button
-                    android:id="@+id/switch_countdown"
+                <ToggleButton
+                    android:id="@+id/btn_timer_switch"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:background="@drawable/ic_off" />
+                    android:background="@drawable/ic_off"
+                    android:textOff=" "
+                    android:textOn=" " />
 
 
             </LinearLayout>

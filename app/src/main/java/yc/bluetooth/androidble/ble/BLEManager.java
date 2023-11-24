@@ -73,7 +73,16 @@ public class BLEManager {
     private BluetoothDevice curConnDevice;  //当前连接的设备
     private boolean isConnectIng = false;  //是否正在连接中
 
+    public BLEMessageSender getBleMessageSender() {
+        return bleMessageSender;
+    }
+
     private BLEMessageSender bleMessageSender;
+
+    public BLEMessageReceiver getBleMessageReceiver() {
+        return bleMessageReceiver;
+    }
+
     private BLEMessageReceiver bleMessageReceiver;
 
     private Handler mHandler = new Handler();
