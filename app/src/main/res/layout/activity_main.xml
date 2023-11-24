@@ -41,7 +41,7 @@
                     android:layout_height="30dp"
                     android:background="@drawable/btn"
                     android:gravity="center"
-                    android:text="Send"
+                    android:text="Send Ping"
                     android:textColor="@color/white" />
 
             </LinearLayout>

@@ -21,17 +21,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import yc.bluetooth.androidble.ble.BLEManager;
-import yc.bluetooth.androidble.ble.BLEMessageReceiver;
 import yc.bluetooth.androidble.ble.BLEMessageSender;
 import yc.bluetooth.androidble.ble.OnBleConnectListener;
 import yc.bluetooth.androidble.ble.OnDeviceSearchListener;
@@ -49,14 +48,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //bt_patch(mtu).bin
 
     // Osteo Strong
-    public static final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-    public static final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
-    public static final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
+//    public static final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+//    public static final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
+//    public static final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
 
     // JDY
-//    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-//    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
-//    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
+    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
+    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     //动态申请权限
     private String[] requestPermissionArray = new String[]{
@@ -100,6 +99,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private View loadingBlocker;
+
+    private TextView loadingBlockerTextView;
 
     private Button btnTestSend;
 
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case DISCONNECT_SUCCESS:
 //                    Log.d(TAG, "断开成功");
 //                    tvCurConState.setText("断开成功");
+                    closeBlock();
                     curConnState = false;
 //
                     break;
@@ -183,14 +185,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 case IDENTIFY_SUCCESS:
                     Log.i(TAG, "验证身份成功");
-                    loadingBlocker.setVisibility(View.GONE);
                     gotoSecondaryActivity();
-
 
                     break;
 
                 case IDENTIFY_FAIL:
                     Log.i(TAG, "验证身份失败");
+                    closeBlock();
                     break;
 
                 case BT_CLOSED:
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "连接失败");
         curConnState = false;
         Toast.makeText(mContext, "Connect Fail >>> " + errorMessage, Toast.LENGTH_SHORT).show();
-        loadingBlocker.setVisibility(View.GONE);
+        closeBlock();
     }
 
     @Override
@@ -249,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         llDeviceList = findViewById(R.id.ll_device_list);
         lvDevices = findViewById(R.id.lv_devices);
         loadingBlocker = findViewById(R.id.mainBlocker);
+        loadingBlockerTextView = loadingBlocker.findViewById(R.id.blocker_text);
         btnTestSend = findViewById(R.id.btn_test_send);
     }
 
@@ -263,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 bleManager.sendMessage("FB510051BF");
+                Toast.makeText(mContext, "Send Clicked!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -286,12 +289,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 message.obj = bluetoothDevice;
                 mHandler.sendMessage(message);
 
-                Toast.makeText(mContext, "Request connecting to device: " + bleDevice.getBluetoothDevice().getName(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext, "Request connecting to device: " + bleDevice.getBluetoothDevice().getName(), Toast.LENGTH_SHORT).show();
 
                 if (!curConnState) {
                     if (bleManager != null) {
                         bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, SERVICE_UUID, READ_UUID, WRITE_UUID, onBleConnectListener);
-//                        loadingBlocker.setVisibility(View.VISIBLE);
+                        openBlock();
                     }
                 } else {
                     Toast.makeText(mContext, "当前设备已连接", Toast.LENGTH_SHORT).show();
@@ -596,6 +599,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void gotoSecondaryActivity() {
         Intent intent = new Intent(mContext, CountDownActivity.class);
         startActivity(intent);
+        closeBlock();
+    }
+
+    private void openBlock() {
+        openBlock("Loading...");
+    }
+
+    private void openBlock(String message) {
+        loadingBlocker.setVisibility(View.VISIBLE);
+        loadingBlockerTextView.setText(message);
+    }
+
+    private void closeBlock() {
         loadingBlocker.setVisibility(View.GONE);
     }
 }
