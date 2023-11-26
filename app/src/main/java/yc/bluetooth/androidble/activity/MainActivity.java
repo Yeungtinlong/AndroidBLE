@@ -1,6 +1,7 @@
-package yc.bluetooth.androidble;
+package yc.bluetooth.androidble.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,8 +14,10 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +33,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import yc.bluetooth.androidble.BLEDevice;
+import yc.bluetooth.androidble.LVDevicesAdapter;
+import yc.bluetooth.androidble.R;
+import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
 import yc.bluetooth.androidble.ble.BLEMessageSender;
 import yc.bluetooth.androidble.ble.OnBleConnectListener;
@@ -48,19 +55,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //bt_patch(mtu).bin
 
     // Osteo Strong
-//    public static final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-//    public static final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
-//    public static final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
+
 
     // JDY
-    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
-    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
+//    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+//    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
+//    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     //动态申请权限
     private String[] requestPermissionArray = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.BLUETOOTH_ADVERTISE,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN,
     };
     // 声明一个集合，在后面的代码中用来存储用户拒绝授权的权限
     private List<String> deniedPermissionList = new ArrayList<>();
@@ -104,6 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button btnTestSend;
 
+    private PermissionListener permissionListener;
+
+    private TextView searchingTextView;
+
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @SuppressLint("SetTextI18n")
@@ -123,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case DISCOVERY_DEVICE:  //扫描到设备
                     BLEDevice bleDevice = (BLEDevice) msg.obj;
                     lvDevicesAdapter.addDevice(bleDevice);
+                    searchingTextView.setVisibility(View.GONE);
                     break;
 
 //                case SELECT_DEVICE:
@@ -226,8 +239,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mContext = MainActivity.this;
 
-        //动态申请权限（Android 6.0）
-
         //初始化视图
         initView();
         //初始化监听
@@ -236,8 +247,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initData();
         //注册广播
         initBLEBroadcastReceiver();
+
         //初始化权限
+        //动态申请权限（Android 6.0）
         initPermissions();
+
+        Log.d(TAG, "On Create.");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         //自动搜索设备
         searchBtDevice();
     }
@@ -252,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loadingBlocker = findViewById(R.id.mainBlocker);
         loadingBlockerTextView = loadingBlocker.findViewById(R.id.blocker_text);
         btnTestSend = findViewById(R.id.btn_test_send);
+        searchingTextView = findViewById(R.id.searching_text);
     }
 
 
@@ -268,6 +290,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(mContext, "Send Clicked!", Toast.LENGTH_SHORT).show();
             }
         });
+        btnTestSend.setVisibility(View.GONE);
+
+        permissionListener = new PermissionListener() {
+            @Override
+            public void onGranted() {
+
+                Log.d(TAG, "所有权限已被授予");
+
+                //自动搜索设备
+                searchBtDevice();
+            }
+
+            //用户勾选“不再提醒”拒绝权限后，关闭程序再打开程序只进入该方法！
+            @Override
+            public void onDenied(List<String> deniedPermissions) {
+                deniedPermissionList = deniedPermissions;
+                for (String deniedPermission : deniedPermissionList) {
+                    Log.e(TAG, "被拒绝权限：" + deniedPermission);
+                }
+                new AlertDialog.Builder(mContext)
+                        .setTitle("Lack of permissions")
+                        .setMessage("Please clear data and grant all permissions.")
+                        .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+        };
     }
 
     /**
@@ -293,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (!curConnState) {
                     if (bleManager != null) {
-                        bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, SERVICE_UUID, READ_UUID, WRITE_UUID, onBleConnectListener);
+                        bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, bleManager.getServiceUUID(), bleManager.getReadUUID(), bleManager.getWriteUUID(), onBleConnectListener);
                         openBlock();
                     }
                 } else {
@@ -339,21 +393,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Android 6.0以上动态申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final PermissionRequest permissionRequest = new PermissionRequest();
-            permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionArray, new PermissionListener() {
-                @Override
-                public void onGranted() {
-                    Log.d(TAG, "所有权限已被授予");
-                }
-
-                //用户勾选“不再提醒”拒绝权限后，关闭程序再打开程序只进入该方法！
-                @Override
-                public void onDenied(List<String> deniedPermissions) {
-                    deniedPermissionList = deniedPermissions;
-                    for (String deniedPermission : deniedPermissionList) {
-                        Log.e(TAG, "被拒绝权限：" + deniedPermission);
-                    }
-                }
-            });
+            permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionArray, permissionListener);
         }
     }
 
@@ -613,5 +653,52 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void closeBlock() {
         loadingBlocker.setVisibility(View.GONE);
+    }
+
+    /**
+     * 申请权限结果返回
+     *
+     * @param requestCode  请求码
+     * @param permissions  所有申请的权限集合
+     * @param grantResults 权限申请的结果
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Log.d(TAG, permissions.length + "to grant.");
+
+        switch (requestCode) {
+            case PermissionRequest.REQUEST_PERMISSION_CODE:
+                if (grantResults.length > 0) { //有权限申请
+                    //存储被用户拒绝的权限
+                    List<String> deniedPermissionList = new ArrayList<>();
+                    //有权限被拒绝，分类出被拒绝的权限
+                    for (int i = 0; i < grantResults.length; i++) {
+                        String permission = permissions[i];
+                        int grantResult = grantResults[i];
+                        if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                            if (!deniedPermissionList.contains(permission)) {
+                                deniedPermissionList.add(permission);
+                            }
+                        }
+                    }
+
+                    if (deniedPermissionList.isEmpty()) {
+                        //没有被拒绝的权限
+                        if (permissionListener != null) {
+                            permissionListener.onGranted();
+                            Log.d(TAG, "权限都授予了");
+                        }
+                    } else {
+                        //有被拒绝的权限
+                        if (permissionListener != null) {
+                            permissionListener.onDenied(deniedPermissionList);
+                            Log.e(TAG, "有权限被拒绝了");
+                        }
+                    }
+                }
+                break;
+        }
     }
 }

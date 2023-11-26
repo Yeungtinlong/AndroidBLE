@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SuperSeekbar">
+        <attr name="stepSize" format="float" />
+        <attr name="showSwitch" format="boolean" />
+        <attr name="rangeMin" format="float" />
+        <attr name="rangeMax" format="float" />
+    </declare-styleable>
+</resources>

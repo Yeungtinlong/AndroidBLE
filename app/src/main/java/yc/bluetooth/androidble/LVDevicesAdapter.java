@@ -45,7 +45,7 @@ public class LVDevicesAdapter extends RecyclerView.Adapter<LVDevicesAdapter.Devi
 
     public LVDevicesAdapter(Context context) {
         this.context = context;
-        bleDevices = new ArrayList<>();
+        this.bleDevices = new ArrayList<>();
     }
 
     public void setOnDeviceConnectClickListener(OnDeviceConnectClickListener onDeviceConnectClickListener) {

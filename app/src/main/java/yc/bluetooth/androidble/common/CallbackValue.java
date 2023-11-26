@@ -1,9 +1,11 @@
-package yc.bluetooth.androidble.ble;
+package yc.bluetooth.androidble.common;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CallbackValue<T> {
+
+    private final static String TAG = "CallbackValue";
 
     public interface Action<T> {
         void invoke(T value);
@@ -15,7 +17,6 @@ public class CallbackValue<T> {
     private List<Action<T>> listeners = new ArrayList<>();
 
     public CallbackValue() {
-
     }
 
     public CallbackValue(T defaultValue) {
@@ -40,7 +41,8 @@ public class CallbackValue<T> {
 
     public void notifyChanged() {
         for (Action<T> action : listeners) {
-            action.invoke(value);
+            if (action != null)
+                action.invoke(value);
         }
     }
 

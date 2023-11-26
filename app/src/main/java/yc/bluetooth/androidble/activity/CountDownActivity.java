@@ -1,24 +1,26 @@
-package yc.bluetooth.androidble;
+package yc.bluetooth.androidble.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import yc.bluetooth.androidble.R;
+import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
+import yc.bluetooth.androidble.common.CallbackValue;
 import yc.bluetooth.androidble.ble.LightGlobalConfig;
 
 public class CountDownActivity extends AppCompatActivity {
-
 
     private static final String TAG = "CountDownActivity";
 
@@ -26,11 +28,18 @@ public class CountDownActivity extends AppCompatActivity {
     private static final String TIMER_TEXT_PREFIX = "Countdown \n";
 
     private Button backBtn;
+    private Button deviceInfoBtn;
+    private Button timerBtn;
+    private Button intensityBtn;
+    private Button pulseBtn;
+
     private ToggleButton timerSwitchBtn;
     private ProgressBar timerProgressBar;
     private TextView countdownText;
     private long latestExitTime = 0;
     private final static long EXIT_APPLICATION_BACK_BUTTON_INTERVAL_MILLIS = 2000;
+
+    private CallbackValue.Action<Integer> onGlobalTimerChanged;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +52,11 @@ public class CountDownActivity extends AppCompatActivity {
 
         // 注册UI时间
         registerViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         // 刷新UI
         refreshViews();
@@ -73,36 +87,69 @@ public class CountDownActivity extends AppCompatActivity {
 
     private void initViews() {
         backBtn = findViewById(R.id.btn_backToMain);
-        timerProgressBar = findViewById(R.id.timer).findViewById(R.id.timer_progress);
+        deviceInfoBtn = findViewById(R.id.btn_deviceId);
+        timerBtn = findViewById(R.id.btn_timer);
+        timerProgressBar = findViewById(R.id.timer).findViewById(R.id.timer_circle_progress);
         countdownText = findViewById(R.id.timer_text);
         timerSwitchBtn = findViewById(R.id.btn_timer_switch);
+        intensityBtn = findViewById(R.id.btn_intensity);
+        pulseBtn = findViewById(R.id.btn_pulse);
     }
 
     private void registerViews() {
         backBtn.setOnClickListener(view -> {
-//            startActivity(new Intent(this, MainActivity.class));
-            finish();
+
+            AlertDialog alertDialog = new AlertDialog.Builder(CountDownActivity.this)
+                    .setTitle("To disconnect?")
+//                    .setMessage("Please clear data and grant all permissions.")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        BLEManager.getInstance().disConnectDevice();
+                        finish();
+                    }).setNegativeButton("No", (dialog, which) -> {
+
+                    })
+                    .setCancelable(false)
+                    .show();
         });
 
-        LightGlobalConfig.globalTimerSet.addOnValueChangeListener(value -> {
+        deviceInfoBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(this, DeviceInfoActivity.class);
+            startActivity(intent);
+        });
+
+        timerBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(this, TimerActivity.class);
+            startActivity(intent);
+        });
+
+        intensityBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(this, IntensityActivity.class);
+            startActivity(intent);
+        });
+
+        pulseBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(this, PulseActivity.class);
+            startActivity(intent);
+        });
+
+        onGlobalTimerChanged = value -> {
             int progress = getProgress(value);
             timerProgressBar.setProgress(progress);
             Log.d(TAG, "progress = " + progress);
             setTimerText(value);
-        });
+        };
 
-        timerSwitchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                LightGlobalConfig.isCountingDown.setValue(isChecked);
-                timerSwitchBtn.setBackground(getResources().getDrawable(isChecked ? R.drawable.ic_on : R.drawable.ic_off));
+        LightGlobalConfig.globalTimerSet.addOnValueChangeListener(onGlobalTimerChanged);
 
-                if (isChecked) {
-                    persistentlyGetTimer();
-                    startCountdown();
-                } else {
-                    stopCountdown();
-                }
+        timerSwitchBtn.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            LightGlobalConfig.isCountingDown.setValue(isChecked);
+            timerSwitchBtn.setBackground(getResources().getDrawable(isChecked ? R.drawable.ic_on : R.drawable.ic_off));
+
+            if (isChecked) {
+                persistentlyGetTimer();
+                startCountdown();
+            } else {
+                stopCountdown();
             }
         });
     }
@@ -117,16 +164,13 @@ public class CountDownActivity extends AppCompatActivity {
 
     private void persistentlyGetTimer() {
 
-        Thread getTimerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (LightGlobalConfig.isCountingDown.getValue()) {
-                    BLEManager.getInstance().getBleMessageSender().sendGetTime();
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        Thread getTimerThread = new Thread(() -> {
+            while (LightGlobalConfig.isCountingDown.getValue()) {
+                BLEManager.getInstance().getBleMessageSender().sendGetTime();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -135,7 +179,7 @@ public class CountDownActivity extends AppCompatActivity {
     }
 
     private void unregisterViews() {
-
+        LightGlobalConfig.globalTimerSet.removeOnValueChangeListener(onGlobalTimerChanged);
     }
 
     private void refreshViews() {
@@ -143,6 +187,8 @@ public class CountDownActivity extends AppCompatActivity {
         int progress = getProgress(remainingTime);
         timerProgressBar.setProgress(progress);
         setTimerText(remainingTime);
+
+        Log.d(TAG, "refresh clock, remaining time" + remainingTime);
     }
 
     private int getProgress(int remainingTime) {

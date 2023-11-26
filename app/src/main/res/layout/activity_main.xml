@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/main_background_icon"
     android:focusableInTouchMode="true"
-    tools:context=".MainActivity">
+    tools:context=".activity.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2">
@@ -24,38 +24,45 @@
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_gravity="top"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="50dp"
-                android:layout_marginBottom="50dp"
-                android:src="@drawable/logo_bottom_icon" />
+                android:layout_marginStart="20dp"
+                android:src="@drawable/logo_bottom_icon"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4" />
 
-            <LinearLayout
+            <Button
+                android:id="@+id/btn_test_send"
+                android:layout_width="80dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/btn"
+                android:gravity="center"
+                android:text="Send Ping"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--    Device list    -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:backgroundTint="@color/clear"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:id="@+id/searching_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:orientation="vertical">
-
-                <Button
-                    android:id="@+id/btn_test_send"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/btn"
-                    android:gravity="center"
-                    android:text="Send Ping"
-                    android:textColor="@color/white" />
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_weight="6"
-            android:backgroundTint="@color/clear"
-            app:cardElevation="0dp">
+                android:text="Searching nearby devices..."
+                android:textColor="@color/white" />
 
             <!--        Spacer-->
             <LinearLayout
@@ -69,11 +76,6 @@
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
                     android:paddingVertical="10dp">
-
-                    <!--                <ImageView-->
-                    <!--                    android:layout_width="30dp"-->
-                    <!--                    android:layout_height="30dp"-->
-                    <!--                    android:src="@drawable/ic_bluetooth_black" />-->
 
                     <TextView
                         android:layout_width="match_parent"
@@ -119,7 +121,7 @@
             <!--            android:text="Jump Activity" />-->
 
 
-        </androidx.cardview.widget.CardView>
+        </RelativeLayout>
 
         <!-- 交互按钮栏 -->
         <LinearLayout
@@ -140,10 +142,17 @@
                 android:textColor="@color/white"
                 android:visibility="gone" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="5"
+                android:gravity="center"></LinearLayout>
+
             <!--    底部Icon    -->
             <ImageView
                 android:layout_width="200dp"
-                android:layout_height="50dp"
+                android:layout_height="0dp"
+                android:layout_weight="5"
                 android:src="@drawable/logo_icon" />
 
         </LinearLayout>

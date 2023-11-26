@@ -13,17 +13,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import yc.bluetooth.androidble.BLEDevice;
 import yc.bluetooth.androidble.util.ClsUtils;
@@ -44,6 +39,22 @@ import yc.bluetooth.androidble.util.TypeConversion;
  */
 public class BLEManager {
     private static final String TAG = "BLEManager";
+
+    public String getServiceUUID() {
+        return SERVICE_UUID;
+    }
+
+    public String getReadUUID() {
+        return READ_UUID;
+    }
+
+    public String getWriteUUID() {
+        return WRITE_UUID;
+    }
+
+    private final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+    private final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
+    private final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
 
     private static final long MAX_CONNECT_TIME = 10000;  //连接超时时间10s
     private static final String DEVICE_NAME_PREFIX = "JDY";
@@ -153,6 +164,7 @@ public class BLEManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Log.d(TAG, "开始扫描设备");
             bluetooth4Adapter.startLeScan(leScanCallback);
+            scannedDevices.clear();
         } else {
             return;
         }

@@ -14,7 +14,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1.5">
+            android:layout_weight="2">
 
             <ImageView
                 android:id="@+id/imageView"
@@ -24,7 +24,8 @@
                 android:src="@drawable/logo_bottom_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4" />
 
             <Button
                 android:id="@+id/btn_backToMain"
@@ -38,22 +39,17 @@
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="8"
-            android:orientation="vertical">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
                 android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
                 <Button
                     android:id="@+id/btn_deviceId"
@@ -97,28 +93,29 @@
 
             </LinearLayout>
 
-            <include
-                android:id="@+id/timer"
-                layout="@layout/layout_timer"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="5"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:gravity="center">
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ToggleButton
-                    android:id="@+id/btn_timer_switch"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@drawable/ic_off"
-                    android:textOff=" "
-                    android:textOn=" " />
+        <include
+            android:id="@+id/timer"
+            layout="@layout/layout_timer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5.5" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5"
+            android:gravity="center">
 
-            </LinearLayout>
+            <ToggleButton
+                android:id="@+id/btn_timer_switch"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/ic_off"
+                android:textOff=" "
+                android:textOn=" " />
+
 
         </LinearLayout>
 

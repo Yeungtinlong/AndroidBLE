@@ -4,17 +4,29 @@ import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import yc.bluetooth.androidble.util.TypeConversion;
 
 public final class BLEMessageSender {
 
     private final static String TAG = "BLEMessageSender";
 
+    private final static int SEND_INTERVAL_MILLIS = 200;
+
     private final static byte PACK_PREFIX = (byte) 0xfb;
     private final static byte PACK_POSTFIX = (byte) 0xbf;
 
+    public final static byte GET_DEVICE_INFO_MODE_ID = 0x01;
+    public final static byte GET_DEVICE_INFO_MODE_VERSION = 0x02;
+
     private final static int MAX_TIMER_SECONDS = 1800;
 
+    private final static int SET_LIGHTS_CH_OFFSET = 3;
+    private final static int SET_FREQUENCIES_CH_OFFSET = 9;
+
+    private Queue<byte[]> messageQueue = new LinkedList<>();
 
     private final BLEManager bleManager;
     private Handler handler;
@@ -22,15 +34,46 @@ public final class BLEMessageSender {
     public BLEMessageSender(BLEManager bleManager, Handler handler) {
         this.bleManager = bleManager;
         this.handler = handler;
+
+        startMessageThread();
     }
 
-    @SuppressLint("MissingPermission")
+    private void startMessageThread() {
+        Thread thread = new Thread(() -> {
+            while (true) {
+                while (messageQueue.size() == 0) {
+                    Thread.yield();
+                }
+
+                synchronized (BLEMessageSender.this) {
+                    sendMessageInternal(messageQueue.poll());
+                }
+
+                try {
+                    Thread.sleep(SEND_INTERVAL_MILLIS);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+        thread.start();
+    }
+
     private boolean sendMessage(byte[] data) {
         if (bleManager == null) {
             Log.e(TAG, "sendMessage(byte[])-->bleManager== null");
             return false;
         }
 
+        synchronized (this) {
+            messageQueue.offer(data);
+        }
+
+        return true;
+    }
+
+    @SuppressLint("MissingPermission")
+    private void sendMessageInternal(byte[] data) {
         byte[] buffer = new byte[data.length + 3];
         buffer[0] = PACK_PREFIX;
 
@@ -50,8 +93,6 @@ public final class BLEMessageSender {
 
         b = bleManager.getBluetoothGatt().writeCharacteristic(bleManager.getWriteCharacteristic());
         Log.d(TAG, "写入特征结果：" + b);
-
-        return true;
     }
 
     public boolean sendGetDevice(byte mode) {
@@ -111,26 +152,58 @@ public final class BLEMessageSender {
         return sendMessage(data);
     }
 
-    public boolean sendSetLight(byte[] lights, int ch) {
+    public boolean sendSetLight(byte light, int ch) {
         byte[] data = new byte[3];
         data[0] = 0x53;
-        data[1] = (byte) (ch + 2);
-        data[2] = lights[ch];
+        data[1] = (byte) (ch + SET_LIGHTS_CH_OFFSET);
+        data[2] = light;
 
         return sendMessage(data);
     }
 
-    public boolean sendSetFrequency(byte[] frequencies, byte[] frequencies_sw, int ch) {
-        byte freq = frequencies[ch];
-        if (frequencies_sw[ch] == 0)
+    public boolean sendSetLights(byte[] lights) {
+        boolean result = true;
+        for (int i = 0; i < lights.length; i++) {
+            result &= sendSetLight(lights[i], i);
+        }
+        return result;
+    }
+
+//    public boolean sendGetLight(int ch) {
+//        byte[] data = new byte[2];
+//        data[0] = 0x52;
+//        data[1] = (byte) (ch + 2);
+//
+//        return sendMessage(data);
+//    }
+//
+//    public boolean sendGetLights() {
+//        boolean result = true;
+//        for (int i = 0; i < 6; i++) {
+//            result &= sendGetLight(i);
+//        }
+//        return result;
+//    }
+
+    public boolean sendSetFrequencies(int[] frequencies, byte[] frequencies_sw) {
+        boolean result = true;
+        for (int i = 0; i < frequencies.length; i++) {
+            result &= sendSetFrequency(frequencies[i], frequencies_sw[i], i);
+        }
+        return result;
+    }
+
+    public boolean sendSetFrequency(int frequency, byte frequency_sw, int ch) {
+        int freq = frequency;
+        if (frequency_sw == 0)
             freq = 0;
 
-        byte[] data = new byte[4];
-        data[0] = 0x53;
-        data[1] = (byte) (ch + 8);
-        data[2] = (byte) (freq >> 8);
-        data[3] = (byte) (freq & 0x00FF);
+        byte[] freqData = new byte[4];
+        freqData[0] = 0x53;
+        freqData[1] = (byte) (ch + SET_FREQUENCIES_CH_OFFSET);
+        freqData[2] = (byte) ((freq >> 8) & 0xFF);
+        freqData[3] = (byte) (freq & 0xFF);
 
-        return sendMessage(data);
+        return sendMessage(freqData);
     }
 }

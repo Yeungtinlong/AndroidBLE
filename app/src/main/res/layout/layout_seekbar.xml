@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp">
+
+        <Switch
+            android:id="@+id/operator_switch"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:thumb="@drawable/switch_thumb_selector"
+            android:track="@drawable/switch_track_selector" />
+
+        <!--    Spacer    -->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" />
+
+        <!--    Seekbar    -->
+        <RelativeLayout
+            android:id="@+id/drag_area"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:clipToPadding="false"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/seekbar_bg"
+                android:layout_width="match_parent"
+                android:layout_height="12dp"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:paddingHorizontal="2dp"
+                android:src="@drawable/bg_seekbar" />
+
+            <ImageView
+                android:id="@+id/seekbar_fg"
+                android:layout_width="0dp"
+                android:layout_height="12dp"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:paddingHorizontal="2dp"
+                android:src="@drawable/bg_progress" />
+
+            <ImageView
+                android:id="@+id/seekbar_thumb"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:src="@drawable/ic_seekbar" />
+
+        </RelativeLayout>
+
+        <!--    Spacer    -->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" />
+
+        <!--    Control Bar    -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/minus_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/less_icon" />
+
+            <EditText
+                android:id="@+id/value_text"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:text="0"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16dp" />
+
+            <Button
+                android:id="@+id/add_btn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/add_icon" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</merge>
