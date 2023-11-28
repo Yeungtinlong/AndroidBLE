@@ -63,13 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     //动态申请权限
-    private String[] requestPermissionArray = new String[]{
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.BLUETOOTH_ADVERTISE,
-            Manifest.permission.BLUETOOTH_CONNECT,
-            Manifest.permission.BLUETOOTH_SCAN,
-    };
+    private List<String> requestPermissionList = new ArrayList<>();
     // 声明一个集合，在后面的代码中用来存储用户拒绝授权的权限
     private List<String> deniedPermissionList = new ArrayList<>();
 
@@ -393,7 +387,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Android 6.0以上动态申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final PermissionRequest permissionRequest = new PermissionRequest();
-            permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionArray, permissionListener);
+
+//            requestPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+//            requestPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+            // Android 12所需权限
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                requestPermissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE);
+                requestPermissionList.add(Manifest.permission.BLUETOOTH_CONNECT);
+                requestPermissionList.add(Manifest.permission.BLUETOOTH_SCAN);
+            }
+
+            permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionList.toArray(new String[requestPermissionList.size()]), permissionListener);
         }
     }
 

@@ -52,9 +52,9 @@ public class BLEManager {
         return WRITE_UUID;
     }
 
-    private final String SERVICE_UUID = "0000fff0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-    private final String READ_UUID = "0000fff1-0000-1000-8000-00805f9b34fb";  //读特征
-    private final String WRITE_UUID = "0000fff2-0000-1000-8000-00805f9b34fb";  //写特征
+    private final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
+    private final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //读特征
+    private final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     private static final long MAX_CONNECT_TIME = 10000;  //连接超时时间10s
     private static final String DEVICE_NAME_PREFIX = "JDY";
