@@ -1,6 +1,7 @@
 package yc.bluetooth.androidble.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -233,28 +234,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mContext = MainActivity.this;
 
-        //初始化视图
+        // 初始化视图
         initView();
-        //初始化监听
-        iniListener();
+
         //初始化数据
         initData();
+
+        //初始化监听
+        iniListener();
+
         //注册广播
         initBLEBroadcastReceiver();
 
-        //初始化权限
-        //动态申请权限（Android 6.0）
-        initPermissions();
+        initBle();
+    }
 
-        Log.d(TAG, "On Create.");
+    private void initBle() {
+        //初始化ble管理器
+        bleManager = BLEManager.getInstance();
+        if (!bleManager.initBle(mContext)) {
+            Log.d(TAG, "该设备不支持低功耗蓝牙");
+//            Toast.makeText(mContext, "该设备不支持低功耗蓝牙", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(mContext)
+                    .setTitle("Not support ble.")
+                    .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        //自动搜索设备
-        searchBtDevice();
+        //动态申请权限（Android 6.0）
+        initPermissions();
     }
 
     /**
@@ -285,37 +304,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         btnTestSend.setVisibility(View.GONE);
-
-        permissionListener = new PermissionListener() {
-            @Override
-            public void onGranted() {
-
-                Log.d(TAG, "所有权限已被授予");
-
-                //自动搜索设备
-                searchBtDevice();
-            }
-
-            //用户勾选“不再提醒”拒绝权限后，关闭程序再打开程序只进入该方法！
-            @Override
-            public void onDenied(List<String> deniedPermissions) {
-                deniedPermissionList = deniedPermissions;
-                for (String deniedPermission : deniedPermissionList) {
-                    Log.e(TAG, "被拒绝权限：" + deniedPermission);
-                }
-                new AlertDialog.Builder(mContext)
-                        .setTitle("Lack of permissions")
-                        .setMessage("Please clear data and grant all permissions.")
-                        .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-            }
-        };
     }
 
     /**
@@ -352,20 +340,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         lvDevices.setAdapter(lvDevicesAdapter);
         lvDevices.setLayoutManager(new LinearLayoutManager(this));
-
-        //初始化ble管理器
-        bleManager = BLEManager.getInstance();
-        if (!bleManager.initBle(mContext)) {
-            Log.d(TAG, "该设备不支持低功耗蓝牙");
-            Toast.makeText(mContext, "该设备不支持低功耗蓝牙", Toast.LENGTH_SHORT).show();
-        } else {
-            if (!bleManager.isEnable()) {
-                //去打开蓝牙
-                bleManager.openBluetooth(mContext, false);
-            }
-        }
     }
-
 
     /**
      * 注册广播
@@ -384,21 +359,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化权限
      */
     private void initPermissions() {
+
+        permissionListener = new PermissionListener() {
+            @Override
+            public void onGranted() {
+                Log.d(TAG, "所有权限已被授予");
+
+                if (!bleManager.isEnable()) {
+                    //去打开蓝牙
+                    bleManager.openBluetooth(mContext, false, new BLEManager.OnOpenBluetoothListener() {
+                        @Override
+                        public void onOpened() {
+                            searchBtDevice();
+                        }
+
+                        @Override
+                        public void onRejected() {
+                            finish();
+                        }
+                    });
+                } else {
+                    searchBtDevice();
+                }
+            }
+
+            //用户勾选“不再提醒”拒绝权限后，关闭程序再打开程序只进入该方法！
+            @Override
+            public void onDenied(List<String> deniedPermissions) {
+                deniedPermissionList = deniedPermissions;
+                for (String deniedPermission : deniedPermissionList) {
+                    Log.e(TAG, "被拒绝权限：" + deniedPermission);
+                }
+
+                new AlertDialog.Builder(mContext)
+                        .setTitle("Lack of permissions")
+                        .setMessage("Please clear data and grant all permissions.")
+                        .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+        };
+
         //Android 6.0以上动态申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            final PermissionRequest permissionRequest = new PermissionRequest();
-
 //            requestPermissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
 //            requestPermissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
 
             // Android 12所需权限
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+                final PermissionRequest permissionRequest = new PermissionRequest();
+
                 requestPermissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE);
                 requestPermissionList.add(Manifest.permission.BLUETOOTH_CONNECT);
                 requestPermissionList.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
 
-            permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionList.toArray(new String[requestPermissionList.size()]), permissionListener);
+                permissionRequest.requestRuntimePermission(MainActivity.this, requestPermissionList.toArray(new String[requestPermissionList.size()]), permissionListener);
+            }
         }
     }
 

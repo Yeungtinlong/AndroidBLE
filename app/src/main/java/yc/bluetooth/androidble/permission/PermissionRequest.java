@@ -45,6 +45,7 @@ public class PermissionRequest extends Activity {
         }
 
         if (!permissionList.isEmpty()) {
+            Log.d(TAG, "请求授权");
             ActivityCompat.requestPermissions((Activity) context, permissionList.toArray(new String[permissionList.size()]), REQUEST_PERMISSION_CODE);
         } else {
             //权限都被授予了

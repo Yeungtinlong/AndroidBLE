@@ -1,6 +1,7 @@
 package yc.bluetooth.androidble.ble;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -15,7 +16,16 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityOptionsCompat;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +48,13 @@ import yc.bluetooth.androidble.util.TypeConversion;
  * 9、断开连接
  */
 public class BLEManager {
+
+    public interface OnOpenBluetoothListener {
+        void onOpened();
+
+        void onRejected();
+    }
+
     private static final String TAG = "BLEManager";
 
     public String getServiceUUID() {
@@ -69,6 +86,8 @@ public class BLEManager {
         return instance;
     }
 
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private OnOpenBluetoothListener onOpenBluetoothListener;
 
     private Context mContext;
     private BluetoothManager bluetoothManager;
@@ -114,6 +133,20 @@ public class BLEManager {
      */
     public boolean initBle(Context context) {
         mContext = context;
+
+        activityResultLauncher = ((ComponentActivity) context).registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult o) {
+                        if (o.getResultCode() == Activity.RESULT_OK)
+                            onOpenBluetoothListener.onOpened();
+                        else
+                            onOpenBluetoothListener.onRejected();
+                    }
+                }
+        );
+
         if (!checkBle(context)) {
             return false;
         } else {
@@ -741,18 +774,26 @@ public class BLEManager {
      * @param isFast true 直接打开蓝牙  false 提示用户打开
      */
     @SuppressLint("MissingPermission")
-    public void openBluetooth(Context context, boolean isFast) {
+    public void openBluetooth(Context context, boolean isFast, OnOpenBluetoothListener onOpenBluetoothListener) {
         if (!isEnable()) {
             if (isFast) {
                 Log.d(TAG, "直接打开手机蓝牙");
-                bluetooth4Adapter.enable();  //BLUETOOTH_ADMIN权限
+                boolean res = bluetooth4Adapter.enable();  //BLUETOOTH_ADMIN权限
+                if (res)
+                    onOpenBluetoothListener.onOpened();
+                else
+                    onOpenBluetoothListener.onRejected();
             } else {
                 Log.d(TAG, "提示用户去打开手机蓝牙");
+
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                context.startActivity(enableBtIntent);
+                this.onOpenBluetoothListener = onOpenBluetoothListener;
+                activityResultLauncher.launch(enableBtIntent);
+//                context.startActivity(enableBtIntent);
             }
         } else {
             Log.d(TAG, "手机蓝牙状态已开");
+            onOpenBluetoothListener.onOpened();
         }
     }
 
