@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import yc.bluetooth.androidble.R;
 import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
-import yc.bluetooth.androidble.ble.LightGlobalConfig;
+import yc.bluetooth.androidble.ble.GlobalConfigs;
 import yc.bluetooth.androidble.ui.SuperSeekbar;
 
 public class TimerActivity extends AppCompatActivity {
@@ -68,6 +68,6 @@ public class TimerActivity extends AppCompatActivity {
     }
 
     private void refreshViews() {
-        timerSeekbar.setValue(LightGlobalConfig.globalTimerSet.getValue() / 60, false);
+        timerSeekbar.setValue(GlobalConfigs.globalTimerSet.getValue() / 60, false);
     }
 }

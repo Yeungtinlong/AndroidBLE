@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+import yc.bluetooth.androidble.util.LogX;
+
 /**
  * 封装权限申请
  */
@@ -39,19 +41,19 @@ public class PermissionRequest extends Activity {
             if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                 if (!permissionList.contains(permission)) {
                     permissionList.add(permission);
-                    Log.w(TAG, permission + " 未被授予");
+                    LogX.w(TAG, permission + " 未被授予");
                 }
             }
         }
 
         if (!permissionList.isEmpty()) {
-            Log.d(TAG, "请求授权");
+            LogX.d(TAG, "请求授权");
             ActivityCompat.requestPermissions((Activity) context, permissionList.toArray(new String[permissionList.size()]), REQUEST_PERMISSION_CODE);
         } else {
             //权限都被授予了
             if (mListener != null) {
                 mListener.onGranted();  //权限都被授予了回调
-                Log.d(TAG, "权限都授予了");
+                LogX.d(TAG, "权限都授予了");
             }
         }
     }
@@ -67,7 +69,7 @@ public class PermissionRequest extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        Log.d(TAG, permissions.length + "to grant.");
+        LogX.d(TAG, permissions.length + "to grant.");
 
         switch (requestCode) {
             case REQUEST_PERMISSION_CODE:
@@ -89,13 +91,13 @@ public class PermissionRequest extends Activity {
                         //没有被拒绝的权限
                         if (mListener != null) {
                             mListener.onGranted();
-                            Log.d(TAG, "权限都授予了");
+                            LogX.d(TAG, "权限都授予了");
                         }
                     } else {
                         //有被拒绝的权限
                         if (mListener != null) {
                             mListener.onDenied(deniedPermissionList);
-                            Log.e(TAG, "有权限被拒绝了");
+                            LogX.e(TAG, "有权限被拒绝了");
                         }
                     }
                 }

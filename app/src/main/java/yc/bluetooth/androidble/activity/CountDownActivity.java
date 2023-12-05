@@ -18,7 +18,8 @@ import yc.bluetooth.androidble.R;
 import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
 import yc.bluetooth.androidble.common.CallbackValue;
-import yc.bluetooth.androidble.ble.LightGlobalConfig;
+import yc.bluetooth.androidble.ble.GlobalConfigs;
+import yc.bluetooth.androidble.util.LogX;
 
 public class CountDownActivity extends AppCompatActivity {
 
@@ -135,14 +136,17 @@ public class CountDownActivity extends AppCompatActivity {
         onGlobalTimerChanged = value -> {
             int progress = getProgress(value);
             timerProgressBar.setProgress(progress);
-            Log.d(TAG, "progress = " + progress);
+//            LogX.d(TAG, "progress = " + progress);
+            if (value == 0) {
+                timerSwitchBtn.setChecked(false);
+            }
             setTimerText(value);
         };
 
-        LightGlobalConfig.globalTimerSet.addOnValueChangeListener(onGlobalTimerChanged);
+        GlobalConfigs.globalTimerSet.addOnValueChangeListener(onGlobalTimerChanged);
 
         timerSwitchBtn.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            LightGlobalConfig.isCountingDown.setValue(isChecked);
+            GlobalConfigs.isCountingDown.setValue(isChecked);
             timerSwitchBtn.setBackground(getResources().getDrawable(isChecked ? R.drawable.ic_on : R.drawable.ic_off));
 
             if (isChecked) {
@@ -165,7 +169,7 @@ public class CountDownActivity extends AppCompatActivity {
     private void persistentlyGetTimer() {
 
         Thread getTimerThread = new Thread(() -> {
-            while (LightGlobalConfig.isCountingDown.getValue()) {
+            while (GlobalConfigs.isCountingDown.getValue()) {
                 BLEManager.getInstance().getBleMessageSender().sendGetTime();
                 try {
                     Thread.sleep(500);
@@ -179,16 +183,16 @@ public class CountDownActivity extends AppCompatActivity {
     }
 
     private void unregisterViews() {
-        LightGlobalConfig.globalTimerSet.removeOnValueChangeListener(onGlobalTimerChanged);
+        GlobalConfigs.globalTimerSet.removeOnValueChangeListener(onGlobalTimerChanged);
     }
 
     private void refreshViews() {
-        int remainingTime = LightGlobalConfig.globalTimerSet.getValue();
+        int remainingTime = GlobalConfigs.globalTimerSet.getValue();
         int progress = getProgress(remainingTime);
         timerProgressBar.setProgress(progress);
         setTimerText(remainingTime);
 
-        Log.d(TAG, "refresh clock, remaining time" + remainingTime);
+        LogX.d(TAG, "refresh clock, remaining time" + remainingTime);
     }
 
     private int getProgress(int remainingTime) {
@@ -199,7 +203,7 @@ public class CountDownActivity extends AppCompatActivity {
         int minutes = totalSeconds / 60;
         int seconds = minutes == 0 ? totalSeconds : totalSeconds % 60;
 
-        Log.w(TAG, "totalSeconds = " + totalSeconds + ", minutes = " + minutes + ", seconds = " + seconds);
+        LogX.w(TAG, "totalSeconds = " + totalSeconds + ", minutes = " + minutes + ", seconds = " + seconds);
 
         String minutesString = minutes < 10 ? "0" + minutes : String.valueOf(minutes);
         String secondsString = seconds < 10 ? "0" + seconds : String.valueOf(seconds);

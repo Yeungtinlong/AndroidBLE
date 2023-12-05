@@ -27,11 +27,14 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityOptionsCompat;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import yc.bluetooth.androidble.BLEDevice;
 import yc.bluetooth.androidble.util.ClsUtils;
+import yc.bluetooth.androidble.util.LogX;
 import yc.bluetooth.androidble.util.TypeConversion;
 
 /**
@@ -57,24 +60,8 @@ public class BLEManager {
 
     private static final String TAG = "BLEManager";
 
-    public String getServiceUUID() {
-        return SERVICE_UUID;
-    }
-
-    public String getReadUUID() {
-        return READ_UUID;
-    }
-
-    public String getWriteUUID() {
-        return WRITE_UUID;
-    }
-
-    private final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-    private final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //读特征
-    private final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
-
     private static final long MAX_CONNECT_TIME = 10000;  //连接超时时间10s
-    private static final String DEVICE_NAME_PREFIX = "JDY";
+    private static final String DEVICE_NAME_PREFIX = "OsteoStrong";
 
     private static BLEManager instance;
 
@@ -94,7 +81,8 @@ public class BLEManager {
     private BluetoothAdapter bluetooth4Adapter;
 
     private BluetoothGatt mBluetoothGatt;  //当前连接的gatt
-    private String serviceUUID, readUUID, writeUUID;
+    //    private String serviceUUID, readUUID, writeUUID;
+    private Map<String, List<String>> serviceCharacteristicsMap;
     private BluetoothGattService bluetoothGattService;   //服务
     private BluetoothGattCharacteristic readCharacteristic;  //读特征
     private BluetoothGattCharacteristic writeCharacteristic; //写特征
@@ -168,8 +156,8 @@ public class BLEManager {
             if (!checkDeviceNameValid(bluetoothDevice.getName()) || scannedDevices.contains(bluetoothDevice.getAddress()))
                 return;
 
-//                Log.d(TAG, "null" + "-->" + bluetoothDevice.getAddress());
-            Log.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + " --> " + bluetoothDevice.getAddress());
+//                LogX.d(TAG, "null" + "-->" + bluetoothDevice.getAddress());
+//            LogX.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + " --> " + bluetoothDevice.getAddress());
             scannedDevices.add(bluetoothDevice.getAddress());
 
             BLEDevice bleDevice = new BLEDevice(bluetoothDevice, rssi);
@@ -188,14 +176,14 @@ public class BLEManager {
     @SuppressLint("MissingPermission")
     public void startDiscoveryDevice(OnDeviceSearchListener onDeviceSearchListener, long scanTime) {
         if (bluetooth4Adapter == null) {
-            Log.e(TAG, "startDiscoveryDevice-->bluetooth4Adapter == null");
+            LogX.e(TAG, "startDiscoveryDevice-->bluetooth4Adapter == null");
             return;
         }
 
         this.onDeviceSearchListener = onDeviceSearchListener;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            Log.d(TAG, "开始扫描设备");
+            LogX.d(TAG, "开始扫描设备");
             bluetooth4Adapter.startLeScan(leScanCallback);
             scannedDevices.clear();
         } else {
@@ -229,16 +217,16 @@ public class BLEManager {
         mHandler.removeCallbacks(stopScanRunnable);
 
         if (bluetooth4Adapter == null) {
-            Log.e(TAG, "stopDiscoveryDevice-->bluetooth4Adapter == null");
+            LogX.e(TAG, "stopDiscoveryDevice-->bluetooth4Adapter == null");
             return;
         }
 
         if (leScanCallback == null) {
-            Log.e(TAG, "stopDiscoveryDevice-->leScanCallback == null");
+            LogX.e(TAG, "stopDiscoveryDevice-->leScanCallback == null");
             return;
         }
 
-        Log.d(TAG, "停止扫描设备");
+        LogX.d(TAG, "停止扫描设备");
         bluetooth4Adapter.stopLeScan(leScanCallback);
     }
 
@@ -262,45 +250,45 @@ public class BLEManager {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
-            Log.d(TAG, "status:" + status);
-            Log.d(TAG, "newState:" + newState);
+            LogX.d(TAG, "status:" + status);
+            LogX.d(TAG, "newState:" + newState);
 
             switch (status) {
                 case BluetoothGatt.GATT_SUCCESS:
-                    Log.w(TAG, "BluetoothGatt.GATT_SUCCESS");
+                    LogX.w(TAG, "BluetoothGatt.GATT_SUCCESS");
                     break;
                 case BluetoothGatt.GATT_FAILURE:
-                    Log.w(TAG, "BluetoothGatt.GATT_FAILURE");
+                    LogX.w(TAG, "BluetoothGatt.GATT_FAILURE");
                     break;
                 case BluetoothGatt.GATT_CONNECTION_CONGESTED:
-                    Log.w(TAG, "BluetoothGatt.GATT_CONNECTION_CONGESTED");
+                    LogX.w(TAG, "BluetoothGatt.GATT_CONNECTION_CONGESTED");
                     break;
                 case BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION:
-                    Log.w(TAG, "BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION");
+                    LogX.w(TAG, "BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION");
                     break;
                 case BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION:
-                    Log.w(TAG, "BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION");
+                    LogX.w(TAG, "BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION");
                     break;
                 case BluetoothGatt.GATT_INVALID_OFFSET:
-                    Log.w(TAG, "BluetoothGatt.GATT_INVALID_OFFSET");
+                    LogX.w(TAG, "BluetoothGatt.GATT_INVALID_OFFSET");
                     break;
                 case BluetoothGatt.GATT_READ_NOT_PERMITTED:
-                    Log.w(TAG, "BluetoothGatt.GATT_READ_NOT_PERMITTED");
+                    LogX.w(TAG, "BluetoothGatt.GATT_READ_NOT_PERMITTED");
                     break;
                 case BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED:
-                    Log.w(TAG, "BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED");
+                    LogX.w(TAG, "BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED");
                     break;
             }
 
             BluetoothDevice bluetoothDevice = gatt.getDevice();
-            Log.d(TAG, "连接的设备：" + bluetoothDevice.getName() + "  " + bluetoothDevice.getAddress());
+            LogX.d(TAG, "连接的设备：" + bluetoothDevice.getName() + "  " + bluetoothDevice.getAddress());
 
             isConnectIng = false;
             //移除连接超时
             mHandler.removeCallbacks(connectOutTimeRunnable);
 
             if (newState == BluetoothGatt.STATE_CONNECTED) {
-                Log.w(TAG, "连接成功");
+                LogX.w(TAG, "连接成功");
                 //连接成功去发现服务
                 gatt.discoverServices();
                 //设置发现服务超时时间
@@ -312,7 +300,7 @@ public class BLEManager {
             } else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                 //清空系统缓存
                 ClsUtils.refreshDeviceCache(gatt);
-                Log.e(TAG, "断开连接status:" + status);
+                LogX.e(TAG, "断开连接status:" + status);
                 gatt.close();  //断开连接释放连接
 
                 if (status == 133) {
@@ -320,14 +308,14 @@ public class BLEManager {
                     if (onBleConnectListener != null) {
                         gatt.close();
                         onBleConnectListener.onConnectFailure(gatt, bluetoothDevice, "连接异常！", status);  //133连接异常 异常断开
-                        Log.e(TAG, "连接失败status：" + status + "  " + bluetoothDevice.getAddress());
+                        LogX.e(TAG, "连接失败status：" + status + "  " + bluetoothDevice.getAddress());
                     }
                 } else if (status == 62) {
                     //成功连接没有发现服务断开
                     if (onBleConnectListener != null) {
                         gatt.close();
                         onBleConnectListener.onConnectFailure(gatt, bluetoothDevice, "连接成功服务未发现断开！", status); //62没有发现服务 异常断开
-                        Log.e(TAG, "连接成功服务未发现断开status:" + status);
+                        LogX.e(TAG, "连接成功服务未发现断开status:" + status);
                     }
 
                 } else if (status == 0) {
@@ -351,12 +339,12 @@ public class BLEManager {
                     }
                 }
             } else if (newState == BluetoothGatt.STATE_CONNECTING) {
-                Log.d(TAG, "正在连接...");
+                LogX.d(TAG, "正在连接...");
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onConnecting(gatt, bluetoothDevice);  //正在连接回调
                 }
             } else if (newState == BluetoothGatt.STATE_DISCONNECTING) {
-                Log.d(TAG, "正在断开...");
+                LogX.d(TAG, "正在断开...");
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onDisConnecting(gatt, bluetoothDevice); //正在断开回调
                 }
@@ -369,12 +357,12 @@ public class BLEManager {
             super.onServicesDiscovered(gatt, status);
             //移除发现服务超时
             mHandler.removeCallbacks(serviceDiscoverOutTimeRunnable);
-            Log.d(TAG, "移除发现服务超时");
+            LogX.d(TAG, "移除发现服务超时");
 
-            Log.d(TAG, "发现服务");
+            LogX.d(TAG, "发现服务");
 
             //配置服务信息
-            if (setupService(gatt, serviceUUID, readUUID, writeUUID)) {
+            if (setupService(gatt, serviceCharacteristicsMap)) {
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onServiceDiscoverySucceed(gatt, gatt.getDevice(), status);  //成功发现服务回调
                 }
@@ -388,7 +376,7 @@ public class BLEManager {
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
-            Log.d(TAG, "读status: " + status);
+            LogX.d(TAG, "读status: " + status);
         }
 
         //向蓝牙设备写入数据结果回调
@@ -397,27 +385,27 @@ public class BLEManager {
             super.onCharacteristicWrite(gatt, characteristic, status);
 
             if (characteristic.getValue() == null) {
-                Log.e(TAG, "characteristic.getValue() == null");
+                LogX.e(TAG, "characteristic.getValue() == null");
                 return;
             }
             //将收到的字节数组转换成十六进制字符串
             String msg = TypeConversion.bytes2HexString(characteristic.getValue(), characteristic.getValue().length);
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 //写入成功
-                Log.w(TAG, "写入成功：" + msg);
+                LogX.w(TAG, "写入成功：" + msg);
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onWriteSuccess(gatt, gatt.getDevice(), characteristic.getValue());  //写入成功回调
                 }
 
             } else if (status == BluetoothGatt.GATT_FAILURE) {
                 //写入失败
-                Log.e(TAG, "写入失败：" + msg);
+                LogX.e(TAG, "写入失败：" + msg);
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onWriteFailure(gatt, gatt.getDevice(), characteristic.getValue(), "写入失败");  //写入失败回调
                 }
             } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
                 //没有权限
-                Log.e(TAG, "没有权限！");
+                LogX.e(TAG, "没有权限！");
             }
         }
 
@@ -428,7 +416,7 @@ public class BLEManager {
 
             //接收数据
             byte[] bytes = characteristic.getValue();
-            Log.w("TAG", "收到数据str:" + TypeConversion.bytes2HexString(bytes, bytes.length));
+            LogX.w("TAG", "收到数据str:" + TypeConversion.bytes2HexString(bytes, bytes.length));
             if (onBleConnectListener != null) {
                 onBleConnectListener.onReceiveMessage(gatt, gatt.getDevice(), characteristic, characteristic.getValue());  //接收数据回调
             }
@@ -444,7 +432,7 @@ public class BLEManager {
             super.onDescriptorWrite(gatt, descriptor, status);
             switch (status) {
                 case BluetoothGatt.GATT_SUCCESS:
-                    Log.w(TAG, "开启监听成功");
+                    LogX.w(TAG, "开启监听成功");
                     checkIdentification(gatt);
                     break;
             }
@@ -453,19 +441,19 @@ public class BLEManager {
         @Override
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
             super.onReliableWriteCompleted(gatt, status);
-            Log.d(TAG, "onReliableWriteCompleted");
+            LogX.d(TAG, "onReliableWriteCompleted");
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             super.onReadRemoteRssi(gatt, rssi, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.w(TAG, "读取RSSI值成功，RSSI值：" + rssi + ",status" + status);
+                LogX.w(TAG, "读取RSSI值成功，RSSI值：" + rssi + ",status" + status);
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onReadRssi(gatt, rssi, status);  //成功读取连接的信号强度回调
                 }
             } else if (status == BluetoothGatt.GATT_FAILURE) {
-                Log.w(TAG, "读取RSSI值失败，status：" + status);
+                LogX.w(TAG, "读取RSSI值失败，status：" + status);
             }
         }
 
@@ -477,13 +465,13 @@ public class BLEManager {
             if (status == BluetoothGatt.GATT_SUCCESS) {  //设置MTU成功
                 //MTU默认取的是23，当收到 onMtuChanged 后，会根据传递的值修改MTU，注意由于传输用掉3字节，因此传递的值需要减3。
                 //mtu - 3
-                Log.w(TAG, "设置MTU成功，新的MTU值：" + (mtu - 3) + ",status" + status);
+                LogX.w(TAG, "设置MTU成功，新的MTU值：" + (mtu - 3) + ",status" + status);
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onMTUSetSuccess("设置后新的MTU值 = " + (mtu - 3) + "   status = " + status, mtu - 3);  //MTU设置成功
                 }
 
             } else if (status == BluetoothGatt.GATT_FAILURE) {  //设置MTU失败
-                Log.e(TAG, "设置MTU值失败：" + (mtu - 3) + ",status" + status);
+                LogX.e(TAG, "设置MTU值失败：" + (mtu - 3) + ",status" + status);
                 if (onBleConnectListener != null) {
                     onBleConnectListener.onMTUSetFailure("设置MTU值失败：" + (mtu - 3) + "   status：" + status);  //MTU设置失败
                 }
@@ -503,22 +491,23 @@ public class BLEManager {
      */
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public BluetoothGatt connectBleDevice(Context context, BluetoothDevice bluetoothDevice, long outTime, String serviceUUID, String readUUID, String writeUUID, OnBleConnectListener onBleConnectListener) {
+    public BluetoothGatt connectBleDevice(Context context, BluetoothDevice bluetoothDevice, long outTime, Map<String, List<String>> serviceCharacteristicsMap, OnBleConnectListener onBleConnectListener) {
         if (bluetoothDevice == null) {
-            Log.e(TAG, "connectBleDevice()-->bluetoothDevice == null");
+            LogX.e(TAG, "connectBleDevice()-->bluetoothDevice == null");
             return null;
         }
         if (isConnectIng) {
-            Log.e(TAG, "connectBleDevice()-->isConnectIng = true");
+            LogX.e(TAG, "connectBleDevice()-->isConnectIng = true");
             return null;
         }
-        this.serviceUUID = serviceUUID;
-        this.readUUID = readUUID;
-        this.writeUUID = writeUUID;
+//        this.serviceUUID = serviceUUID;
+//        this.readUUID = readUUID;
+//        this.writeUUID = writeUUID;
         this.onBleConnectListener = onBleConnectListener;
+        this.serviceCharacteristicsMap = serviceCharacteristicsMap;
 
         this.curConnDevice = bluetoothDevice;
-        Log.d(TAG, "开始准备连接：" + bluetoothDevice.getName() + "-->" + bluetoothDevice.getAddress());
+        LogX.d(TAG, "开始准备连接：" + bluetoothDevice.getName() + "-->" + bluetoothDevice.getAddress());
         //出现 BluetoothGatt.android.os.DeadObjectException 蓝牙没有打开
         try {
             mBluetoothGatt = bluetoothDevice.connectGatt(context, false, bluetoothGattCallback);
@@ -526,7 +515,7 @@ public class BLEManager {
             isConnectIng = true;
 
         } catch (Exception e) {
-            Log.e(TAG, "e:" + e.getMessage());
+            LogX.e(TAG, "e:" + e.getMessage());
         }
 
         //设置连接超时时间10s
@@ -542,7 +531,7 @@ public class BLEManager {
         @Override
         public void run() {
             if (mBluetoothGatt == null) {
-                Log.e(TAG, "connectOuttimeRunnable-->mBluetoothGatt == null");
+                LogX.e(TAG, "connectOuttimeRunnable-->mBluetoothGatt == null");
                 return;
             }
 
@@ -563,7 +552,7 @@ public class BLEManager {
         @Override
         public void run() {
             if (mBluetoothGatt == null) {
-                Log.e(TAG, "connectOuttimeRunnable-->mBluetoothGatt == null");
+                LogX.e(TAG, "connectOuttimeRunnable-->mBluetoothGatt == null");
                 return;
             }
 
@@ -582,29 +571,27 @@ public class BLEManager {
      * 1个serviceUUID -- 1个readUUID -- 1个writeUUID
      *
      * @param bluetoothGatt
-     * @param serviceUUID
-     * @param readUUID
-     * @param writeUUID
+     * @param serviceCharacteristicsMap
      * @return
      */
     @SuppressLint("MissingPermission")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private boolean setupService(BluetoothGatt bluetoothGatt, String serviceUUID, String readUUID, String writeUUID) {
+    private boolean setupService(BluetoothGatt bluetoothGatt, Map<String, List<String>> serviceCharacteristicsMap) {
         if (bluetoothGatt == null) {
-            Log.e(TAG, "setupService()-->bluetoothGatt == null");
+            LogX.e(TAG, "setupService()-->bluetoothGatt == null");
             return false;
         }
 
-        if (serviceUUID == null) {
-            Log.e(TAG, "setupService()-->serviceUUID == null");
+        if (serviceCharacteristicsMap == null) {
+            LogX.e(TAG, "setupService()-->serviceUUID == null");
             return false;
         }
 
-        Log.d(TAG, "services count = " + bluetoothGatt.getServices().size());
-
+        // 适配多种UUID
         for (BluetoothGattService service : bluetoothGatt.getServices()) {
-            Log.d(TAG, "service = " + service.getUuid().toString());
-            if (service.getUuid().toString().equals(serviceUUID)) {
+            String uuid = service.getUuid().toString();
+            LogX.d(TAG, "found service = " + uuid);
+            if (serviceCharacteristicsMap.containsKey(uuid)) {
                 bluetoothGattService = service;
             }
         }
@@ -612,31 +599,34 @@ public class BLEManager {
 //        bluetoothGattService = bleManager.getBluetoothGattService(bluetoothGatt,ConsData.MY_BLUETOOTH4_UUID);
         if (bluetoothGattService == null) {
             //找不到该服务就立即断开连接
-            Log.e(TAG, "setupService()-->bluetoothGattService == null");
+            LogX.e(TAG, "setupService()-->bluetoothGattService == null");
             return false;
         }
-        Log.d(TAG, "setupService()-->bluetoothGattService = " + bluetoothGattService.toString());
 
-        if (readUUID == null || writeUUID == null) {
-            Log.e(TAG, "setupService()-->readUUID == null || writeUUID == null");
+        LogX.d(TAG, "setupService()-->bluetoothGattService = " + bluetoothGattService.toString());
+
+        List<String> characteristics = serviceCharacteristicsMap.get(bluetoothGattService.getUuid().toString());
+
+        if (characteristics == null || characteristics.size() == 0) {
+            LogX.e(TAG, "setupService()-->readUUID == null || writeUUID == null");
             return false;
         }
 
         for (BluetoothGattCharacteristic characteristic : bluetoothGattService.getCharacteristics()) {
-            Log.d(TAG, "get characteristic = " + characteristic.getUuid().toString());
+            LogX.d(TAG, "get characteristic = " + characteristic.getUuid().toString());
 
-            if (characteristic.getUuid().toString().equals(readUUID)) {  //读特征
+            if (characteristics.get(0).equals(characteristic.getUuid().toString())) {  //读特征
                 readCharacteristic = characteristic;
-            } else if (characteristic.getUuid().toString().equals(writeUUID)) {  //写特征
+            } else if (characteristics.get(1).equals(characteristic.getUuid().toString())) {  //写特征
                 writeCharacteristic = characteristic;
             }
         }
         if (readCharacteristic == null) {
-            Log.e(TAG, "setupService()-->readCharacteristic == null");
+            LogX.e(TAG, "setupService()-->readCharacteristic == null");
             return false;
         }
         if (writeCharacteristic == null) {
-            Log.e(TAG, "setupService()-->writeCharacteristic == null");
+            LogX.e(TAG, "setupService()-->writeCharacteristic == null");
             return false;
         }
         //打开读通知
@@ -674,11 +664,11 @@ public class BLEManager {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void enableNotification(boolean enable, BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         if (gatt == null) {
-            Log.e(TAG, "enableNotification-->gatt == null");
+            LogX.e(TAG, "enableNotification-->gatt == null");
             return;
         }
         if (characteristic == null) {
-            Log.e(TAG, "enableNotification-->characteristic == null");
+            LogX.e(TAG, "enableNotification-->characteristic == null");
             return;
         }
         //这一步必须要有，否则接收不到通知
@@ -698,18 +688,18 @@ public class BLEManager {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public boolean sendMessage(String msg) {
         if (writeCharacteristic == null) {
-            Log.e(TAG, "sendMessage(byte[])-->writeGattCharacteristic == null");
+            LogX.e(TAG, "sendMessage(byte[])-->writeGattCharacteristic == null");
             return false;
         }
 
         if (mBluetoothGatt == null) {
-            Log.e(TAG, "sendMessage(byte[])-->mBluetoothGatt == null");
+            LogX.e(TAG, "sendMessage(byte[])-->mBluetoothGatt == null");
             return false;
         }
 
         boolean b = writeCharacteristic.setValue(TypeConversion.hexString2Bytes(msg));
 //        writeCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        Log.d(TAG, "写特征设置值结果：" + b);
+        LogX.d(TAG, "写特征设置值结果：" + b);
         return mBluetoothGatt.writeCharacteristic(writeCharacteristic);
     }
 
@@ -723,7 +713,7 @@ public class BLEManager {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void disConnectDevice() {
         if (mBluetoothGatt == null) {
-            Log.e(TAG, "disConnectDevice-->bluetoothGatt == null");
+            LogX.e(TAG, "disConnectDevice-->bluetoothGatt == null");
             return;
         }
 
@@ -750,7 +740,7 @@ public class BLEManager {
             if (bluetooth4Adapter == null) {
                 return false;
             } else {
-                Log.d(TAG, "该设备支持蓝牙4.0");
+                LogX.d(TAG, "该设备支持蓝牙4.0");
                 return true;
             }
         } else {
@@ -777,14 +767,14 @@ public class BLEManager {
     public void openBluetooth(Context context, boolean isFast, OnOpenBluetoothListener onOpenBluetoothListener) {
         if (!isEnable()) {
             if (isFast) {
-                Log.d(TAG, "直接打开手机蓝牙");
+                LogX.d(TAG, "直接打开手机蓝牙");
                 boolean res = bluetooth4Adapter.enable();  //BLUETOOTH_ADMIN权限
                 if (res)
                     onOpenBluetoothListener.onOpened();
                 else
                     onOpenBluetoothListener.onRejected();
             } else {
-                Log.d(TAG, "提示用户去打开手机蓝牙");
+                LogX.d(TAG, "提示用户去打开手机蓝牙");
 
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 this.onOpenBluetoothListener = onOpenBluetoothListener;
@@ -792,7 +782,7 @@ public class BLEManager {
 //                context.startActivity(enableBtIntent);
             }
         } else {
-            Log.d(TAG, "手机蓝牙状态已开");
+            LogX.d(TAG, "手机蓝牙状态已开");
             onOpenBluetoothListener.onOpened();
         }
     }
@@ -823,8 +813,8 @@ public class BLEManager {
     }
 
     private boolean checkDeviceNameValid(String deviceName) {
-        return deviceName != null;
-//        return deviceName != null && deviceName.startsWith(DEVICE_NAME_HEAD);
+//        return deviceName != null;
+        return deviceName != null && deviceName.startsWith(DEVICE_NAME_PREFIX);
     }
 
     private void checkIdentification(BluetoothGatt gatt) {

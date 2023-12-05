@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import yc.bluetooth.androidble.R;
 import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
-import yc.bluetooth.androidble.ble.LightGlobalConfig;
+import yc.bluetooth.androidble.ble.GlobalConfigs;
 import yc.bluetooth.androidble.common.CallbackValue;
 import yc.bluetooth.androidble.ui.SuperSeekbar;
 
@@ -72,11 +72,11 @@ public class IntensityActivity extends AppCompatActivity {
             setLights(lights);
         };
 
-        LightGlobalConfig.globalLights.addOnValueChangeListener(onLightsChangedListener);
+        GlobalConfigs.globalLights.addOnValueChangeListener(onLightsChangedListener);
     }
 
     private void unregisterListeners() {
-        LightGlobalConfig.globalLights.removeOnValueChangeListener(onLightsChangedListener);
+        GlobalConfigs.globalLights.removeOnValueChangeListener(onLightsChangedListener);
     }
 
     private void sendIntensitySettings() {
@@ -92,7 +92,7 @@ public class IntensityActivity extends AppCompatActivity {
     }
 
     private void refreshViews() {
-        byte[] lights = LightGlobalConfig.globalLights.getValue();
+        byte[] lights = GlobalConfigs.globalLights.getValue();
         controllerCh0.setValue(lights[0], false);
         controllerCh1.setValue(lights[1], false);
         controllerCh2.setValue(lights[2], false);

@@ -3,6 +3,8 @@ package yc.bluetooth.androidble.ble;
 
 import android.util.Log;
 
+import yc.bluetooth.androidble.util.LogX;
+
 public class BLEIdentifier {
 
     public interface OnIdentifyResultListener {
@@ -33,63 +35,63 @@ public class BLEIdentifier {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Log.d(TAG, "Thread Id = " + Thread.currentThread().getId());
+                LogX.d(TAG, "Thread Id = " + Thread.currentThread().getId());
                 bleMessageSender.sendGetTime();
 
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendGetTime();
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendPing();
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendPing();
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendPing();
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendGetTime();
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendGetDevice((byte) 0);
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendGetDevice((byte) 0x01);
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
 //
 //                try {
 //                    Thread.sleep(100);
 //                    bleMessageSender.sendGetDevice((byte) 0x02);
 //                } catch (Exception ex) {
-//                    Log.e("identifyThread", ex.getMessage());
+//                    LogX.e("identifyThread", ex.getMessage());
 //                }
             }
         });

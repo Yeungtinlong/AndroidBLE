@@ -1,7 +1,6 @@
 package yc.bluetooth.androidble.activity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -32,7 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import yc.bluetooth.androidble.BLEDevice;
 import yc.bluetooth.androidble.LVDevicesAdapter;
@@ -40,10 +40,12 @@ import yc.bluetooth.androidble.R;
 import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
 import yc.bluetooth.androidble.ble.BLEMessageSender;
+import yc.bluetooth.androidble.ble.GlobalConfigs;
 import yc.bluetooth.androidble.ble.OnBleConnectListener;
 import yc.bluetooth.androidble.ble.OnDeviceSearchListener;
 import yc.bluetooth.androidble.permission.PermissionListener;
 import yc.bluetooth.androidble.permission.PermissionRequest;
+import yc.bluetooth.androidble.util.LogX;
 import yc.bluetooth.androidble.util.TypeConversion;
 
 /**
@@ -52,16 +54,6 @@ import yc.bluetooth.androidble.util.TypeConversion;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "BLEMain";
-
-    //bt_patch(mtu).bin
-
-    // Osteo Strong
-
-
-    // JDY
-//    public static final String SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";  //蓝牙通讯服务
-//    public static final String READ_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";  //写特征
-//    public static final String WRITE_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";  //写特征
 
     //动态申请权限
     private List<String> requestPermissionList = new ArrayList<>();
@@ -120,11 +112,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             switch (msg.what) {
                 case START_DISCOVERY:
-                    Log.d(TAG, "开始搜索设备...");
+                    LogX.d(TAG, "开始搜索设备...");
                     break;
 
                 case STOP_DISCOVERY:
-                    Log.d(TAG, "停止搜索设备...");
+                    LogX.d(TAG, "停止搜索设备...");
                     break;
 
                 case DISCOVERY_DEVICE:  //扫描到设备
@@ -142,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 case CONNECT_FAILURE: //连接失败
                     onConnectFail((String) msg.obj);
-//                    Log.d(TAG, "连接失败");
+//                    LogX.d(TAG, "连接失败");
 //                    tvCurConState.setText("连接失败");
                     curConnState = false;
                     break;
@@ -157,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
 
                 case DISCONNECT_SUCCESS:
-//                    Log.d(TAG, "断开成功");
+//                    LogX.d(TAG, "断开成功");
 //                    tvCurConState.setText("断开成功");
                     closeBlock();
                     curConnState = false;
@@ -167,24 +159,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case SEND_FAILURE: //发送失败
                     byte[] sendBufFail = (byte[]) msg.obj;
                     String sendFail = TypeConversion.bytes2HexString(sendBufFail, sendBufFail.length);
-                    Log.e(TAG, "发送数据失败，长度" + sendBufFail.length + "--> " + sendFail);
+                    LogX.e(TAG, "发送数据失败，长度" + sendBufFail.length + "--> " + sendFail);
                     break;
 
                 case SEND_SUCCESS:  //发送成功
                     byte[] sendBufSuc = (byte[]) msg.obj;
                     String sendResult = TypeConversion.bytes2HexString(sendBufSuc, sendBufSuc.length);
-                    Log.i(TAG, "发送数据成功，长度" + sendBufSuc.length + "--> " + sendResult);
+                    LogX.i(TAG, "发送数据成功，长度" + sendBufSuc.length + "--> " + sendResult);
                     break;
 
                 case RECEIVE_FAILURE: //接收失败
                     String receiveError = (String) msg.obj;
-                    Log.e(TAG, receiveError);
+                    LogX.e(TAG, receiveError);
                     break;
 
                 case RECEIVE_SUCCESS:  //接收成功
                     byte[] recBufSuc = (byte[]) msg.obj;
                     String receiveResult = TypeConversion.bytes2HexString(recBufSuc, recBufSuc.length);
-                    Log.i(TAG, "接收数据成功，长度" + recBufSuc.length + "--> " + receiveResult);
+                    LogX.i(TAG, "接收数据成功，长度" + recBufSuc.length + "--> " + receiveResult);
 
                     // 在主线程中处理接收到的信息
                     bleManager.sendMessageHandler(recBufSuc);
@@ -192,22 +184,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
 
                 case IDENTIFY_SUCCESS:
-                    Log.i(TAG, "验证身份成功");
+                    LogX.i(TAG, "验证身份成功");
                     gotoSecondaryActivity();
 
                     break;
 
                 case IDENTIFY_FAIL:
-                    Log.i(TAG, "验证身份失败");
+                    LogX.i(TAG, "验证身份失败");
                     closeBlock();
                     break;
 
                 case BT_CLOSED:
-                    Log.d(TAG, "系统蓝牙已关闭");
+                    LogX.d(TAG, "系统蓝牙已关闭");
                     break;
 
                 case BT_OPENED:
-                    Log.d(TAG, "系统蓝牙已打开");
+                    LogX.d(TAG, "系统蓝牙已打开");
                     break;
             }
 
@@ -215,14 +207,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void onConnectSuccess() {
-        Log.d(TAG, "连接成功");
+        LogX.d(TAG, "连接成功");
         Toast.makeText(mContext, "Connect Success", Toast.LENGTH_SHORT).show();
     }
 
     private void onConnectFail(String errorMessage) {
-        Log.d(TAG, "连接失败");
+        LogX.d(TAG, "连接失败");
         curConnState = false;
-        Toast.makeText(mContext, "Connect Fail >>> " + errorMessage, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "Connect Fail: " + errorMessage, Toast.LENGTH_SHORT).show();
         closeBlock();
     }
 
@@ -253,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //初始化ble管理器
         bleManager = BLEManager.getInstance();
         if (!bleManager.initBle(mContext)) {
-            Log.d(TAG, "该设备不支持低功耗蓝牙");
+            LogX.d(TAG, "该设备不支持低功耗蓝牙");
 //            Toast.makeText(mContext, "该设备不支持低功耗蓝牙", Toast.LENGTH_SHORT).show();
             new AlertDialog.Builder(mContext)
                     .setTitle("Not support ble.")
@@ -329,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (!curConnState) {
                     if (bleManager != null) {
-                        bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, bleManager.getServiceUUID(), bleManager.getReadUUID(), bleManager.getWriteUUID(), onBleConnectListener);
+                        bleManager.connectBleDevice(mContext, bluetoothDevice, 15000, GlobalConfigs.serviceCharacteristicsMap, onBleConnectListener);
                         openBlock();
                     }
                 } else {
@@ -363,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         permissionListener = new PermissionListener() {
             @Override
             public void onGranted() {
-                Log.d(TAG, "所有权限已被授予");
+                LogX.d(TAG, "所有权限已被授予");
 
                 if (!bleManager.isEnable()) {
                     //去打开蓝牙
@@ -388,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onDenied(List<String> deniedPermissions) {
                 deniedPermissionList = deniedPermissions;
                 for (String deniedPermission : deniedPermissionList) {
-                    Log.e(TAG, "被拒绝权限：" + deniedPermission);
+                    LogX.e(TAG, "被拒绝权限：" + deniedPermission);
                 }
 
                 new AlertDialog.Builder(mContext)
@@ -480,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //////////////////////////////////  搜索设备  /////////////////////////////////////////////////
     private void searchBtDevice() {
         if (bleManager == null) {
-            Log.d(TAG, "searchBtDevice()-->bleManager == null");
+            LogX.d(TAG, "searchBtDevice()-->bleManager == null");
             return;
         }
 
@@ -693,7 +685,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        Log.d(TAG, permissions.length + "to grant.");
+        LogX.d(TAG, permissions.length + "to grant.");
 
         switch (requestCode) {
             case PermissionRequest.REQUEST_PERMISSION_CODE:
@@ -715,13 +707,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //没有被拒绝的权限
                         if (permissionListener != null) {
                             permissionListener.onGranted();
-                            Log.d(TAG, "权限都授予了");
+                            LogX.d(TAG, "权限都授予了");
                         }
                     } else {
                         //有被拒绝的权限
                         if (permissionListener != null) {
                             permissionListener.onDenied(deniedPermissionList);
-                            Log.e(TAG, "有权限被拒绝了");
+                            LogX.e(TAG, "有权限被拒绝了");
                         }
                     }
                 }

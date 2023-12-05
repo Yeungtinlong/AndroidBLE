@@ -127,13 +127,13 @@ public class ClsUtils {
             Method[] hideMethod = clsShow.getMethods();
             int i = 0;
             for (; i < hideMethod.length; i++) {
-                //Log.e("method name", hideMethod.getName() + ";and the i is:"
+                //LogX.e("method name", hideMethod.getName() + ";and the i is:"
                 //      + i);
             }
             // 取得所有常量
             Field[] allFields = clsShow.getFields();
             for (i = 0; i < allFields.length; i++) {
-                //Log.e("Field name", allFields.getName());
+                //LogX.e("Field name", allFields.getName());
             }
         } catch (SecurityException e) {
             // throw new RuntimeException(e.getMessage());
@@ -160,7 +160,7 @@ public class ClsUtils {
                     return  bool;
                 }
             } catch (Exception localException) {
-                Log.i("Config", "An exception occured while refreshing device");
+                LogX.i("Config", "An exception occured while refreshing device");
             }
         }
         return false;

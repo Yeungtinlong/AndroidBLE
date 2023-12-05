@@ -38,6 +38,7 @@
             android:orientation="vertical"
             android:paddingHorizontal="20dp">
 
+            <!--      Current ID      -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -48,19 +49,21 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Current Id: "
+                    android:text="Device ID: "
                     android:textColor="@color/white" />
 
-                <TextView
+                <EditText
                     android:id="@+id/device_id_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:inputType="number"
                     android:text=" "
                     android:textColor="@color/white"
+                    android:textSize="16dp"
                     tools:text="xx" />
 
             </LinearLayout>
-
+            <!--     Group ID       -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -71,7 +74,32 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Software version Id: "
+                    android:text="Group ID: "
+                    android:textColor="@color/white" />
+
+                <EditText
+                    android:id="@+id/group_id_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text=" "
+                    android:textColor="@color/white"
+                    android:textSize="16dp"
+                    tools:text="xx" />
+
+            </LinearLayout>
+            <!--     Software version       -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Software version ID: "
                     android:textColor="@color/white" />
 
                 <TextView
@@ -83,7 +111,7 @@
                     tools:text="xx" />
 
             </LinearLayout>
-
+            <!--      Hardware version      -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -94,7 +122,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hardware version Id: "
+                    android:text="Hardware version ID: "
                     android:textColor="@color/white" />
 
                 <TextView
@@ -119,7 +147,21 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="5" />
+                android:layout_weight="5"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/submit_btn"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/btn"
+                    android:gravity="center"
+                    android:text="OK"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18dp" />
+
+            </LinearLayout>
 
             <!--    底部Icon    -->
             <ImageView

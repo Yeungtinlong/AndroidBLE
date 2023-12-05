@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import yc.bluetooth.androidble.util.LogX;
 import yc.bluetooth.androidble.util.TypeConversion;
 
 public final class BLEMessageSender {
@@ -61,7 +62,7 @@ public final class BLEMessageSender {
 
     private boolean sendMessage(byte[] data) {
         if (bleManager == null) {
-            Log.e(TAG, "sendMessage(byte[])-->bleManager== null");
+            LogX.e(TAG, "sendMessage(byte[])-->bleManager== null");
             return false;
         }
 
@@ -86,13 +87,13 @@ public final class BLEMessageSender {
         buffer[data.length + 1] = check;
         buffer[buffer.length - 1] = PACK_POSTFIX;
 
-        Log.d(TAG, TypeConversion.bytes20xHexString(buffer) + " sent.");
+        LogX.d(TAG, TypeConversion.bytes20xHexString(buffer) + " sent.");
 
         boolean b = bleManager.getWriteCharacteristic().setValue(buffer);
-        Log.d(TAG, "写特征设置值结果：" + b);
+        LogX.d(TAG, "写特征设置值结果：" + b);
 
         b = bleManager.getBluetoothGatt().writeCharacteristic(bleManager.getWriteCharacteristic());
-        Log.d(TAG, "写入特征结果：" + b);
+        LogX.d(TAG, "写入特征结果：" + b);
     }
 
     public boolean sendGetDevice(byte mode) {
@@ -100,6 +101,14 @@ public final class BLEMessageSender {
         data[0] = 0x50;
         data[1] = mode;
 
+        return sendMessage(data);
+    }
+
+    public boolean sendSetDeviceId(int id) {
+        byte[] data = new byte[3];
+        data[0] = 0x53;
+        data[1] = 0x02;
+        data[2] = (byte) id;
         return sendMessage(data);
     }
 
@@ -139,7 +148,7 @@ public final class BLEMessageSender {
 
     public boolean sendSetTime(int seconds) {
         if (seconds > MAX_TIMER_SECONDS) {
-            Log.e("sendSetTime", "不能设置时间大于1800s，或小于0s");
+            LogX.e("sendSetTime", "不能设置时间大于1800s，或小于0s");
             return false;
         }
 

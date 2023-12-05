@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 
 import yc.bluetooth.androidble.R;
+import yc.bluetooth.androidble.util.LogX;
 import yc.bluetooth.androidble.util.MathUtils;
 
 public class SuperSeekbar extends RelativeLayout {
@@ -68,7 +69,7 @@ public class SuperSeekbar extends RelativeLayout {
         currentValue = formatValue(value);
         float rate01 = valueToFormattedRate01(currentValue);
 
-        Log.d(TAG, "set value >>> rate01 = " + rate01 + ", currentValue = " + currentValue);
+        LogX.d(TAG, "set value >>> rate01 = " + rate01 + ", currentValue = " + currentValue);
 
         if (!isOn)
             return currentValue;
@@ -140,7 +141,7 @@ public class SuperSeekbar extends RelativeLayout {
 
     public SuperSeekbar setStepSize(int stepSize) {
 //        if (step < 0 || step > rangeMax - rangeMin) {
-//            Log.e(TAG, "Step can't less than 0, or bigger than range.");
+//            LogX.e(TAG, "Step can't less than 0, or bigger than range.");
 //            return null;
 //        }
 
@@ -181,7 +182,7 @@ public class SuperSeekbar extends RelativeLayout {
 
                         rate01 = snapRateByStep(rate01);
 
-//                        Log.d(TAG, "Progress (x: " + rate01 + ")");
+//                        LogX.d(TAG, "Progress (x: " + rate01 + ")");
 
                         setSeekbarByRate01(rate01);
 

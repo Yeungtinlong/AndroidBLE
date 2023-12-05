@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import yc.bluetooth.androidble.R;
 import yc.bluetooth.androidble.TransparentStatusBar;
 import yc.bluetooth.androidble.ble.BLEManager;
-import yc.bluetooth.androidble.ble.LightGlobalConfig;
+import yc.bluetooth.androidble.ble.GlobalConfigs;
 import yc.bluetooth.androidble.common.CallbackValue;
 import yc.bluetooth.androidble.ui.SuperSeekbar;
 
@@ -96,13 +96,13 @@ public class PulseActivity extends AppCompatActivity {
         sws[4] = (byte) (controllerCh4.getOn() ? 1 : 0);
         sws[5] = (byte) (controllerCh5.getOn() ? 1 : 0);
 
-        LightGlobalConfig.globalFrequencySwitches.setValue(sws);
+        GlobalConfigs.globalFrequencySwitches.setValue(sws);
         BLEManager.getInstance().getBleMessageSender().sendSetFrequencies(lights, sws);
     }
 
     private void refreshViews() {
-        byte[] frequencies_sws = LightGlobalConfig.globalFrequencySwitches.getValue();
-        int[] frequencies = LightGlobalConfig.globalFrequencies.getValue();
+        byte[] frequencies_sws = GlobalConfigs.globalFrequencySwitches.getValue();
+        int[] frequencies = GlobalConfigs.globalFrequencies.getValue();
         setFrequencies(frequencies, frequencies_sws);
     }
 
