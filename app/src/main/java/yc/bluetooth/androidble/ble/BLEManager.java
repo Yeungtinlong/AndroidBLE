@@ -37,19 +37,6 @@ import yc.bluetooth.androidble.util.ClsUtils;
 import yc.bluetooth.androidble.util.LogX;
 import yc.bluetooth.androidble.util.TypeConversion;
 
-/**
- * 作者：yeqianyun on 2019/11/6 17:47
- * 邮箱：1612706976@qq.com
- * <p>
- * 1、扫描设备
- * 2、配对设备
- * 3、解除设备配对
- * 4、连接设备
- * 6、发现服务
- * 7、打开读写功能
- * 8、数据通讯（发送数据、接收数据）
- * 9、断开连接
- */
 public class BLEManager {
 
     public interface OnOpenBluetoothListener {
@@ -156,7 +143,7 @@ public class BLEManager {
             if (!checkDeviceNameValid(bluetoothDevice.getName()) || scannedDevices.contains(bluetoothDevice.getAddress()))
                 return;
 
-//                LogX.d(TAG, "null" + "-->" + bluetoothDevice.getAddress());
+            LogX.d(TAG, "Scanned:" + "-->" + "name: " + bluetoothDevice.getName() + "address: " + bluetoothDevice.getAddress());
 //            LogX.d(TAG, "Thread Id: " + Thread.currentThread().getId() + ", Found Device " + bluetoothDevice.getName() + " --> " + bluetoothDevice.getAddress());
             scannedDevices.add(bluetoothDevice.getAddress());
 

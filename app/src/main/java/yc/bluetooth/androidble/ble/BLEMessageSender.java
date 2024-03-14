@@ -32,20 +32,18 @@ public final class BLEMessageSender {
     private final BLEManager bleManager;
     private Handler handler;
 
+    private boolean isSendingMessage;
+
     public BLEMessageSender(BLEManager bleManager, Handler handler) {
         this.bleManager = bleManager;
         this.handler = handler;
-
-        startMessageThread();
     }
 
     private void startMessageThread() {
+        if (isSendingMessage) return;
+        isSendingMessage = true;
         Thread thread = new Thread(() -> {
-            while (true) {
-                while (messageQueue.size() == 0) {
-                    Thread.yield();
-                }
-
+            while (messageQueue.size() > 0) {
                 synchronized (BLEMessageSender.this) {
                     sendMessageInternal(messageQueue.poll());
                 }
@@ -56,6 +54,7 @@ public final class BLEMessageSender {
                     throw new RuntimeException(e);
                 }
             }
+            isSendingMessage = false;
         });
         thread.start();
     }
@@ -69,6 +68,8 @@ public final class BLEMessageSender {
         synchronized (this) {
             messageQueue.offer(data);
         }
+
+        startMessageThread();
 
         return true;
     }

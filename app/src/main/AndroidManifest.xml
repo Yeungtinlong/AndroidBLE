@@ -42,19 +42,19 @@
         </activity>
         <activity
             android:name=".activity.CountDownActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".activity.DeviceInfoActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".activity.TimerActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".activity.IntensityActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".activity.PulseActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
     </application>
 
 </manifest>

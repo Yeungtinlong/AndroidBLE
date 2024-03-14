@@ -84,11 +84,39 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
-                        android:text="630nm"
+                        android:text="610nm"
                         android:textColor="@color/white" />
 
                     <yc.bluetooth.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch0"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        app:rangeMax="20000"
+                        app:showSwitch="true" />
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="20dp"
+                        android:background="@color/whiteAlpha20" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="20dp"
+                        android:text="630nm"
+                        android:textColor="@color/white" />
+
+                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                        android:id="@+id/controller_ch1"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         app:rangeMax="20000"
@@ -114,34 +142,6 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:text="660nm"
-                        android:textColor="@color/white" />
-
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
-                        android:id="@+id/controller_ch1"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        app:rangeMax="20000"
-                        app:showSwitch="true" />
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginHorizontal="20dp"
-                        android:background="@color/whiteAlpha20" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingHorizontal="20dp"
-                        android:text="770nm"
                         android:textColor="@color/white" />
 
                     <yc.bluetooth.androidble.ui.SuperSeekbar

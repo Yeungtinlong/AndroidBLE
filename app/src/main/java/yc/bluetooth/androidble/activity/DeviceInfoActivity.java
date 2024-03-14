@@ -24,7 +24,7 @@ import yc.bluetooth.androidble.util.MathUtils;
 public class DeviceInfoActivity extends AppCompatActivity {
 
     private EditText deviceIdText;
-    private EditText groupIdText;
+//    private EditText groupIdText;
     private TextView softwareVersionText;
     private TextView hardwareVersionText;
     private Button applyButton;
@@ -62,7 +62,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
     private void initViews() {
         deviceIdText = findViewById(R.id.device_id_text);
-        groupIdText = findViewById(R.id.group_id_text);
+//        groupIdText = findViewById(R.id.group_id_text);
         softwareVersionText = findViewById(R.id.software_id_text);
         hardwareVersionText = findViewById(R.id.hardware_id_text);
         applyButton = findViewById(R.id.submit_btn);
@@ -138,7 +138,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 }
 
                 int idToSet = Integer.parseInt(deviceIdText.getText().toString());
-                BLEManager.getInstance().getBleMessageSender().sendSetTime(idToSet);
+                BLEManager.getInstance().getBleMessageSender().sendSetDeviceId(idToSet);
                 new AlertDialog.Builder(DeviceInfoActivity.this)
                         .setMessage("Apply successfully, please reconnect device.")
                         .setPositiveButton("Exit", new DialogInterface.OnClickListener() {
