@@ -28,7 +28,7 @@ public class CountDownActivity extends AppCompatActivity {
     private static final int MAX_TIME = 1800;
     private static final String TIMER_TEXT_PREFIX = "Countdown \n";
 
-    private Button backBtn;
+//    private Button backBtn;
     private Button deviceInfoBtn;
     private Button timerBtn;
     private Button intensityBtn;
@@ -87,7 +87,7 @@ public class CountDownActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        backBtn = findViewById(R.id.btn_backToMain);
+//        backBtn = findViewById(R.id.btn_backToMain);
         deviceInfoBtn = findViewById(R.id.btn_deviceId);
         timerBtn = findViewById(R.id.btn_timer);
         timerProgressBar = findViewById(R.id.timer).findViewById(R.id.timer_circle_progress);
@@ -98,20 +98,20 @@ public class CountDownActivity extends AppCompatActivity {
     }
 
     private void registerViews() {
-        backBtn.setOnClickListener(view -> {
-
-            AlertDialog alertDialog = new AlertDialog.Builder(CountDownActivity.this)
-                    .setTitle("To disconnect?")
-//                    .setMessage("Please clear data and grant all permissions.")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        BLEManager.getInstance().disConnectDevice();
-                        finish();
-                    }).setNegativeButton("No", (dialog, which) -> {
-
-                    })
-                    .setCancelable(false)
-                    .show();
-        });
+//        backBtn.setOnClickListener(view -> {
+//
+//            AlertDialog alertDialog = new AlertDialog.Builder(CountDownActivity.this)
+//                    .setTitle("To disconnect?")
+////                    .setMessage("Please clear data and grant all permissions.")
+//                    .setPositiveButton("Yes", (dialog, which) -> {
+//                        BLEManager.getInstance().disConnectDevice();
+//                        finish();
+//                    }).setNegativeButton("No", (dialog, which) -> {
+//
+//                    })
+//                    .setCancelable(false)
+//                    .show();
+//        });
 
         deviceInfoBtn.setOnClickListener(view -> {
             Intent intent = new Intent(this, DeviceInfoActivity.class);
@@ -208,6 +208,7 @@ public class CountDownActivity extends AppCompatActivity {
         String minutesString = minutes < 10 ? "0" + minutes : String.valueOf(minutes);
         String secondsString = seconds < 10 ? "0" + seconds : String.valueOf(seconds);
 
-        countdownText.setText(TIMER_TEXT_PREFIX + minutesString + ":" + secondsString);
+//        countdownText.setText(TIMER_TEXT_PREFIX + minutesString + ":" + secondsString);
+        countdownText.setText(minutesString + ":" + secondsString);
     }
 }

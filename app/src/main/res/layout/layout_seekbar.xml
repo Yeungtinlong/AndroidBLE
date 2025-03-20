@@ -34,7 +34,7 @@
             <ImageView
                 android:id="@+id/seekbar_bg"
                 android:layout_width="match_parent"
-                android:layout_height="12dp"
+                android:layout_height="15dp"
                 android:layout_centerVertical="true"
                 android:clickable="false"
                 android:paddingHorizontal="2dp"
@@ -51,8 +51,8 @@
 
             <ImageView
                 android:id="@+id/seekbar_thumb"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
 
                 android:layout_centerVertical="true"
                 android:clickable="false"
@@ -75,14 +75,15 @@
 
             <Button
                 android:id="@+id/minus_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="34dp"
+                android:layout_height="25dp"
                 android:background="@drawable/less_icon" />
 
             <EditText
                 android:id="@+id/value_text"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
                 android:gravity="center"
                 android:inputType="numberDecimal"
                 android:maxLines="1"
@@ -93,8 +94,8 @@
 
             <Button
                 android:id="@+id/add_btn"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="34dp"
+                android:layout_height="25dp"
                 android:background="@drawable/add_icon" />
 
         </LinearLayout>

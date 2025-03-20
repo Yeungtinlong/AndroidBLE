@@ -16,7 +16,7 @@
             android:layout_height="0dp"
             android:layout_weight="2">
 
-            <ImageView
+            <!--<ImageView
                 android:id="@+id/imageView"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
@@ -25,9 +25,9 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.4" />
+                app:layout_constraintVertical_bias="0.4" />-->
 
-            <Button
+            <!--<Button
                 android:id="@+id/btn_backToMain"
                 android:layout_width="100dp"
                 android:layout_height="30dp"
@@ -40,58 +40,89 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.4" />
+                app:layout_constraintVertical_bias="0.4" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
+                android:layout_height="match_parent"
+                android:gravity="bottom"
+                android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/btn_deviceId"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/btn"
-                    android:gravity="center"
-                    android:text="Device ID"
-                    android:textColor="@color/white" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
-                <Button
-                    android:id="@+id/btn_pulse"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/btn"
-                    android:gravity="center"
-                    android:text="Pulse"
-                    android:textColor="@color/white" />
+                    <Button
+                        android:id="@+id/btn_deviceId"
+                        android:layout_width="160dp"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:background="@drawable/btn"
+                        android:gravity="center"
+                        android:text="DEVICE ID"
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btn_intensity"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/btn"
-                    android:gravity="center"
-                    android:text="Intensity"
-                    android:textColor="@color/white" />
+                    <Button
+                        android:id="@+id/btn_pulse"
+                        android:layout_width="160dp"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:background="@drawable/btn"
+                        android:gravity="center"
+                        android:text="PULSE"
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btn_timer"
-                    android:layout_width="80dp"
-                    android:layout_height="30dp"
-                    android:layout_marginLeft="10dp"
-                    android:background="@drawable/btn"
-                    android:gravity="center"
-                    android:text="Timer"
-                    android:textColor="@color/white" />
+                </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <Button
+                        android:id="@+id/btn_intensity"
+                        android:layout_width="160dp"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:background="@drawable/btn"
+                        android:gravity="center"
+                        android:text="INTENSITY"
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btn_timer"
+                        android:layout_width="160dp"
+                        android:layout_height="40dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:background="@drawable/btn"
+                        android:gravity="center"
+                        android:text="TIMER"
+                        android:textColor="@color/white"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+
+
+                </LinearLayout>
 
             </LinearLayout>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -126,10 +157,10 @@
             android:gravity="center">
 
             <!--    底部Icon    -->
-            <ImageView
+            <!--<ImageView
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:src="@drawable/logo_icon" />
+                android:src="@drawable/logo_icon" />-->
 
         </LinearLayout>
 

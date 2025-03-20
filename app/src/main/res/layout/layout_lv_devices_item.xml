@@ -33,7 +33,8 @@
                 android:layout_weight="6.5"
                 android:text="JDY_Device_Name"
                 android:textColor="@color/white"
-                android:textSize="12dp" />
+                android:textSize="16dp"
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/connectButton"

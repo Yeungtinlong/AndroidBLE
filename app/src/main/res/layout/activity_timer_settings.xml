@@ -17,7 +17,7 @@
             android:layout_height="0dp"
             android:layout_weight="2">
 
-            <ImageView
+            <!--<ImageView
                 android:id="@+id/imageView"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
@@ -26,17 +26,19 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.4" />
+                app:layout_constraintVertical_bias="0.4" />-->
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginBottom="20dp"
                 android:gravity="center"
                 android:text="Timer Set"
                 android:textColor="@color/white"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
@@ -44,18 +46,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_marginEnd="50dp"
+                android:layout_marginBottom="20dp"
                 android:gravity="center"
-                android:text="minutes"
+                android:text="Minutes"
                 android:textColor="@color/white"
                 android:textSize="18dp"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="2dp"
                 android:layout_marginHorizontal="20dp"
-                android:background="@color/whiteAlpha20"
+                android:background="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -97,14 +101,15 @@
 
                 <Button
                     android:id="@+id/submit_btn"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
+                    android:layout_width="160dp"
+                    android:layout_height="40dp"
                     android:background="@drawable/btn"
                     android:gravity="center"
                     android:text="OK"
                     android:textAlignment="center"
                     android:textColor="@color/white"
-                    android:textSize="18dp" />
+                    android:textSize="18dp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
@@ -113,7 +118,8 @@
                 android:layout_width="200dp"
                 android:layout_height="0dp"
                 android:layout_weight="5"
-                android:src="@drawable/logo_icon" />
+                android:src="@drawable/logo_icon"
+                android:visibility="invisible" />
 
         </LinearLayout>
 
