@@ -22,6 +22,7 @@
 
             <ProgressBar
                 android:layout_width="50dp"
+                android:indeterminateTint="@color/colorPrimary"
                 android:layout_height="50dp" />
 
             <TextView

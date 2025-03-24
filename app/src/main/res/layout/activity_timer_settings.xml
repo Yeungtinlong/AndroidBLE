@@ -75,13 +75,13 @@
             android:layout_weight="6"
             android:orientation="vertical">
 
-            <yc.bluetooth.androidble.ui.SuperSeekbar
+            <apt.redlight.androidble.ui.SuperSeekbar
                 android:id="@+id/timer_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 app:stepSize="1">
 
-            </yc.bluetooth.androidble.ui.SuperSeekbar>
+            </apt.redlight.androidble.ui.SuperSeekbar>
 
 
         </LinearLayout>

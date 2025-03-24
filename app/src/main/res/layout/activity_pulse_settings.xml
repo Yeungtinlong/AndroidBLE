@@ -91,7 +91,7 @@
                         android:text="610nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch0"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -119,7 +119,7 @@
                         android:text="630nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch1"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -148,7 +148,7 @@
                         android:text="660nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch2"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -176,7 +176,7 @@
                         android:text="810nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch3"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -204,7 +204,7 @@
                         android:text="830nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch4"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
@@ -232,7 +232,7 @@
                         android:text="850nm"
                         android:textColor="@color/white" />
 
-                    <yc.bluetooth.androidble.ui.SuperSeekbar
+                    <apt.redlight.androidble.ui.SuperSeekbar
                         android:id="@+id/controller_ch5"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
