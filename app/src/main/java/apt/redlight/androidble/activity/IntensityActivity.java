@@ -6,6 +6,8 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 import apt.redlight.androidble.R;
 import apt.redlight.androidble.TransparentStatusBar;
 import apt.redlight.androidble.ble.BLEManager;
@@ -21,7 +23,10 @@ public class IntensityActivity extends AppCompatActivity {
     private SuperSeekbar controllerCh3;
     private SuperSeekbar controllerCh4;
     private SuperSeekbar controllerCh5;
+
     private Button submitBtn;
+
+    private ArrayList<SuperSeekbar> controllerChs;
 
     private CallbackValue.Action<byte[]> onLightsChangedListener;
 
@@ -59,6 +64,15 @@ public class IntensityActivity extends AppCompatActivity {
         controllerCh3 = findViewById(R.id.controller_ch3);
         controllerCh4 = findViewById(R.id.controller_ch4);
         controllerCh5 = findViewById(R.id.controller_ch5);
+
+        controllerChs = new ArrayList<>();
+        controllerChs.add(controllerCh0);
+        controllerChs.add(controllerCh1);
+        controllerChs.add(controllerCh2);
+        controllerChs.add(controllerCh3);
+        controllerChs.add(controllerCh4);
+        controllerChs.add(controllerCh5);
+
         submitBtn = findViewById(R.id.submit_btn);
     }
 
@@ -88,7 +102,12 @@ public class IntensityActivity extends AppCompatActivity {
         lights[4] = (byte) controllerCh4.getValue();
         lights[5] = (byte) controllerCh5.getValue();
 
-        BLEManager.getInstance().getBleMessageSender().sendSetLights(lights);
+//        BLEManager.getInstance().getBleMessageSender().sendSetLights(lights);
+        BLEManager.getInstance().getBleMessageSender().sendSetLightsInOnePack(lights);
+    }
+
+    private void sendIntensitySetting(int index) {
+        BLEManager.getInstance().getBleMessageSender().sendSetLight((byte) controllerChs.get(index).getValue(), index);
     }
 
     private void refreshViews() {

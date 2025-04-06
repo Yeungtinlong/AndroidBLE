@@ -3,6 +3,7 @@ package apt.redlight.androidble.ble;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -13,7 +14,7 @@ public final class BLEMessageSender {
 
     private final static String TAG = "BLEMessageSender";
 
-    private final static int SEND_INTERVAL_MILLIS = 200;
+    private final static int SEND_INTERVAL_MILLIS = 1;
 
     private final static byte PACK_PREFIX = (byte) 0xfb;
     private final static byte PACK_POSTFIX = (byte) 0xbf;
@@ -47,11 +48,11 @@ public final class BLEMessageSender {
                     sendMessageInternal(messageQueue.poll());
                 }
 
-                try {
-                    Thread.sleep(SEND_INTERVAL_MILLIS);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    Thread.sleep(SEND_INTERVAL_MILLIS);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
             }
             isSendingMessage = false;
         });
@@ -71,6 +72,21 @@ public final class BLEMessageSender {
         startMessageThread();
 
         return true;
+    }
+
+    public byte[] packData(byte[] data) {
+        byte[] buffer = new byte[data.length + 3];
+        buffer[0] = PACK_PREFIX;
+
+        byte check = 0;
+        for (int i = 0; i < data.length; i++) {
+            buffer[i + 1] = data[i];
+            check = (byte) (check ^ data[i]);
+        }
+
+        buffer[data.length + 1] = check;
+        buffer[buffer.length - 1] = PACK_POSTFIX;
+        return buffer;
     }
 
     @SuppressLint("MissingPermission")
@@ -94,6 +110,19 @@ public final class BLEMessageSender {
 
         b = bleManager.getBluetoothGatt().writeCharacteristic(bleManager.getWriteCharacteristic());
         LogX.d(TAG, "写入特征结果：" + b);
+    }
+
+    @SuppressLint("MissingPermission")
+    public boolean sendPullMessage(byte[] data) {
+        LogX.d(TAG, TypeConversion.bytes20xHexString(data) + " sent.");
+
+        boolean b = bleManager.getWriteCharacteristic().setValue(data);
+        LogX.d(TAG, "写特征设置值结果：" + b);
+
+        b = bleManager.getBluetoothGatt().writeCharacteristic(bleManager.getWriteCharacteristic());
+        LogX.d(TAG, "写入特征结果：" + b);
+
+        return b;
     }
 
     public boolean sendGetDevice(byte mode) {
@@ -162,12 +191,17 @@ public final class BLEMessageSender {
     }
 
     public boolean sendSetLight(byte light, int ch) {
+        byte[] data = packSetLight(light, ch);
+        return sendMessage(data);
+    }
+
+    private byte[] packSetLight(byte light, int ch) {
         byte[] data = new byte[3];
         data[0] = 0x53;
         data[1] = (byte) (ch + SET_LIGHTS_CH_OFFSET);
         data[2] = light;
 
-        return sendMessage(data);
+        return data;
     }
 
     public boolean sendSetLights(byte[] lights) {
@@ -176,6 +210,17 @@ public final class BLEMessageSender {
             result &= sendSetLight(lights[i], i);
         }
         return result;
+    }
+
+    public boolean sendSetLightsInOnePack(byte[] lights) {
+        byte[] bytes = new byte[lights.length * 6];
+        for (int i = 0; i < lights.length; i++) {
+            byte[] packed = packData(packSetLight(lights[i], i));
+            for (int j = 0; j < packed.length; j++) {
+                bytes[i * packed.length + j] = packed[j];
+            }
+        }
+        return sendPullMessage(bytes);
     }
 
 //    public boolean sendGetLight(int ch) {
@@ -203,6 +248,11 @@ public final class BLEMessageSender {
     }
 
     public boolean sendSetFrequency(int frequency, byte frequency_sw, int ch) {
+        byte[] freqData = packSetFrequency(frequency, frequency_sw, ch);
+        return sendMessage(freqData);
+    }
+
+    private byte[] packSetFrequency(int frequency, byte frequency_sw, int ch) {
         int freq = frequency;
         if (frequency_sw == 0)
             freq = 0;
@@ -212,7 +262,17 @@ public final class BLEMessageSender {
         freqData[1] = (byte) (ch + SET_FREQUENCIES_CH_OFFSET);
         freqData[2] = (byte) ((freq >> 8) & 0xFF);
         freqData[3] = (byte) (freq & 0xFF);
+        return freqData;
+    }
 
-        return sendMessage(freqData);
+    public boolean sendSetFrequenciesInOnePack(int[] frequencies, byte[] frequencies_sw) {
+        byte[] bytes = new byte[frequencies.length * 7];
+        for (int i = 0; i < frequencies.length; i++) {
+            byte[] packed = packData(packSetFrequency(frequencies[i], frequencies_sw[i], i));
+            for (int j = 0; j < packed.length; j++) {
+                bytes[i * packed.length + j] = packed[j];
+            }
+        }
+        return sendPullMessage(bytes);
     }
 }

@@ -97,7 +97,8 @@ public class PulseActivity extends AppCompatActivity {
         sws[5] = (byte) (controllerCh5.getOn() ? 1 : 0);
 
         GlobalConfigs.globalFrequencySwitches.setValue(sws);
-        BLEManager.getInstance().getBleMessageSender().sendSetFrequencies(lights, sws);
+//        BLEManager.getInstance().getBleMessageSender().sendSetFrequencies(lights, sws);
+        BLEManager.getInstance().getBleMessageSender().sendSetFrequenciesInOnePack(lights, sws);
     }
 
     private void refreshViews() {
